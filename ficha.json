@@ -1,0 +1,59 @@
+{
+  "ficha_de_personagem": {
+    "nome": "",
+    "raca": "",
+    "classe": "",
+    "tipos_de_poderes": [
+      "",
+      ""
+    ],
+    "ataques": {
+      "ativos": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "passivas": [
+        "",
+        "",
+        ""
+      ]
+    },
+    "status": {
+      "vida": 0,
+      "forca": 0,
+      "velocidade": 0,
+      "inteligencia": 0,
+      "destreza": 0,
+      "intelectualidade": 0,
+      "carisma": 0
+    },
+    "inventario": {
+      "tamanho_da_mochila": "",
+      "capacidade_maxima": {
+        "pequena": {
+          "itens": 15,
+          "carteira_G$": 25000.0
+        },
+        "media": {
+          "itens": 30,
+          "carteira_G$": 70000.0
+        },
+        "grande": {
+          "itens": 60,
+          "carteira_G$": 150999.99
+        }
+      },
+      "itens_iniciais": [
+        "arma (nada apelão)",
+        "item de buff pessoal (nada apelão)"
+      ],
+      "dinheiro_inicial_C$": 100.0,
+      "registro_mochila_chat": "#🧳mochila-🧳fw"
+    },
+    "historia": "",
+    "idade": null,
+    "tamanho": null
+  }
+}
