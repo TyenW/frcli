@@ -1,0 +1,190 @@
+[
+  {
+    "nome": "Pyromacia",
+    "nome_traduzido": "magia de fogo",
+    "modificadores": {
+      "positivos": [
+        "+ força",
+        "+ carisma"
+      ],
+      "negativos": [
+        "- resistencia a hydromacia"
+      ]
+    }
+  },
+  {
+    "nome": "Hydromacia",
+    "nome_traduzido": "magia de água",
+    "modificadores": {
+      "positivos": [
+        "+ velocidade",
+        "+ carisma"
+      ],
+      "negativos": [
+        "- resistencia a geomacia"
+      ]
+    }
+  },
+  {
+    "nome": "Geomacia",
+    "nome_traduzido": "magia de terra",
+    "modificadores": {
+      "positivos": [
+        "+ vida",
+        "+ carisma"
+      ],
+      "negativos": [
+        "- resistência a aeriumacia"
+      ]
+    }
+  },
+  {
+    "nome": "Aeriumacia",
+    "nome_traduzido": "magia de ar",
+    "modificadores": {
+      "positivos": [
+        "+ destreza",
+        "+ carisma"
+      ],
+      "negativos": [
+        "- resistência a pyromacia"
+      ]
+    }
+  },
+  {
+    "nome": "Criomacia",
+    "nome_traduzido": "magia de gelo",
+    "modificadores": {
+      "positivos": [
+        "+ vida",
+        "+ força"
+      ],
+      "negativos": [
+        "- velocidade",
+        "- resistência a pyromacia"
+      ]
+    }
+  },
+  {
+    "nome": "Toxiomacia",
+    "nome_traduzido": "magia de veneno",
+    "modificadores": {
+      "positivos": [
+        "+ velocidade",
+        "+ força"
+      ],
+      "negativos": [
+        "- carisma",
+        "- resistência a necromacia/geomacia"
+      ]
+    }
+  },
+  {
+    "nome": "Electromacia",
+    "nome_traduzido": "magia de eletricidade",
+    "modificadores": {
+      "positivos": [
+        "+ velocidade",
+        "+ vida"
+      ],
+      "negativos": [
+        "- força",
+        "- resistência a geomacia/criomacia"
+      ]
+    }
+  },
+  {
+    "nome": "Cronomacia",
+    "nome_traduzido": "magia do tempo",
+    "modificadores": {
+      "positivos": [
+        "+ velocidade",
+        "+ força",
+        "+ vida"
+      ],
+      "negativos": [
+        "- carisma",
+        "- carisma",
+        "- resistência a cronomacia"
+      ]
+    }
+  },
+  {
+    "nome": "Abstractomacia",
+    "nome_traduzido": "magia de sangue",
+    "modificadores": {
+      "positivos": [
+        "+ força",
+        "+ cura",
+        "+ velocidade"
+      ],
+      "negativos": [
+        "- carisma",
+        "- carisma",
+        "- resistência a abstractomacia/cronomacia"
+      ]
+    }
+  },
+  {
+    "nome": "Necromacia",
+    "nome_traduzido": "magia de almas",
+    "modificadores": {
+      "positivos": [
+        "+ velocidade",
+        "+ cura",
+        "+ vida"
+      ],
+      "negativos": [
+        "- carisma",
+        "- carisma",
+        "- resistência a abstractomacia/necromacia"
+      ]
+    }
+  },
+  {
+    "nome": "Armas de longa distância",
+    "nome_traduzido": "armas de fogo",
+    "modificadores": {
+      "positivos": [
+        "+ destreza",
+        "+ velocidade"
+      ],
+      "negativos": [
+        "- vida",
+        "- resistência a cronomacia"
+      ]
+    },
+    "observacao": "pode se escolher o item e o ataque que o poder de arma vai fazer"
+  },
+  {
+    "nome": "Armas de curta distância",
+    "nome_traduzido": "armas brancas",
+    "modificadores": {
+      "positivos": [
+        "+ destreza",
+        "+ velocidade"
+      ],
+      "negativos": [
+        "- força",
+        "- resistência a abstractomacia"
+      ]
+    },
+    "observacao": "pode se escolher o item e o ataque que o poder de arma vai fazer"
+  },
+  {
+    "nome": "Espectromacia",
+    "nome_traduzido": "magia de manipulação",
+    "modificadores": {
+      "positivos": [
+        "+ velocidade",
+        "+ vida"
+      ],
+      "negativos": [
+        "- força",
+        "- destreza",
+        "- resistência contra necromacia/abstractomacia"
+      ]
+    },
+    "observacao": "Imunidade com todas as armas"
+  }
+]

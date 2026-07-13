@@ -1,0 +1,58 @@
+{
+  "status_gerais": {
+    "vida_base": 120
+  },
+  "atributos": [
+    {
+      "nome": "Vida",
+      "observacoes": "vai depender da defesa do personagem",
+      "modificadores": {
+        "positivo": 75,
+        "negativo": -35
+      }
+    },
+    {
+      "nome": "Força",
+      "modificadores": {
+        "positivo": 3,
+        "negativo": -0.5
+      }
+    },
+    {
+      "nome": "Velocidade",
+      "modificadores": {
+        "positivo": 3,
+        "negativo": -0.5
+      }
+    },
+    {
+      "nome": "Inteligência",
+      "modificadores": {
+        "positivo": 2,
+        "negativo": -1
+      }
+    },
+    {
+      "nome": "Destreza",
+      "observacoes": "chance de desviar de ataques",
+      "modificadores": {
+        "positivo": 2,
+        "negativo": -1
+      }
+    },
+    {
+      "nome": "Intelectualidade",
+      "modificadores": {
+        "positivo": 4,
+        "negativo": -1.5
+      }
+    },
+    {
+      "nome": "Carisma",
+      "modificadores": {
+        "positivo": 4,
+        "negativo": -1.5
+      }
+    }
+  ]
+}

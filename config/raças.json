@@ -1,0 +1,487 @@
+[
+  {
+    "raca": "Humano",
+    "vantagens": {
+      "modificadores": [
+        "+ velocidade",
+        "+ intelectualidade",
+        "+ destreza"
+      ],
+      "escritas": [
+        "possuem um tom de confiança na fala"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- carisma",
+        "- vida",
+        "- confiança"
+      ],
+      "escritas": [
+        "dificuldade em aprender magias necromantes e cronomantes"
+      ]
+    }
+  },
+  {
+    "raca": "Elfo",
+    "vantagens": {
+      "modificadores": [
+        "+ velocidade",
+        "+ carisma",
+        "+ destreza"
+      ],
+      "escritas": [
+        "aprendem rapidamente a utilizar uma arma"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- força",
+        "- confiança",
+        "- vida"
+      ],
+      "escritas": [
+        "são baixinhos"
+      ]
+    }
+  },
+  {
+    "raca": "Androide",
+    "vantagens": {
+      "modificadores": [
+        "+ força",
+        "+ vida",
+        "+ inteligência"
+      ],
+      "escritas": [
+        "podem carregar até 20 armas pesadas diferentes"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- velocidade",
+        "- destreza",
+        "- intelectualidade"
+      ],
+      "escritas": [
+        "são facilmente reprogramáveis"
+      ]
+    }
+  },
+  {
+    "raca": "Ciborgue",
+    "vantagens": {
+      "modificadores": [
+        "+ carisma",
+        "+ velocidade",
+        "+ força"
+      ],
+      "escritas": [
+        "podem possuir algum melhoramento cibernético"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- velocidade",
+        "- vida",
+        "- sanidade"
+      ],
+      "escritas": [
+        "enferrujam rápido tendo de fazer manutenção nas peças diariamente"
+      ]
+    }
+  },
+  {
+    "raca": "Demônio",
+    "vantagens": {
+      "modificadores": [
+        "+ intelectualidade",
+        "+ força"
+      ],
+      "escritas": [
+        "resistência a magias pyromantes",
+        "facilidade em magias necromantes",
+        "sempre aptos para negociação"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- carisma",
+        "- vida"
+      ],
+      "escritas": [
+        "resistência a magias hydromantes",
+        "são brigados com anjos e arcanjos",
+        "poucos são confiáveis"
+      ]
+    }
+  },
+  {
+    "raca": "Anjo",
+    "vantagens": {
+      "modificadores": [
+        "+ intelectualidade",
+        "+ força"
+      ],
+      "escritas": [
+        "resistência ao ar",
+        "facilidade em magias de cura",
+        "sempre caridosos"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- carisma",
+        "- vida"
+      ],
+      "escritas": [
+        "resistência a magias necromantes",
+        "são brigados com demônios e arcanjos",
+        "são sempre caridosos"
+      ]
+    }
+  },
+  {
+    "raca": "Arcanjo",
+    "vantagens": {
+      "modificadores": [
+        "+ intelectualidade",
+        "+ força"
+      ],
+      "escritas": [
+        "resistência a poderes necromantes",
+        "facilidade em diversas magias",
+        "são resistentes emocionalmente"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- carisma",
+        "- vida"
+      ],
+      "escritas": [
+        "resistência a magias cronomantes",
+        "são brigados com anjos e demônios",
+        "são teimosos"
+      ]
+    }
+  },
+  {
+    "raca": "Hibrido",
+    "vantagens": {
+      "modificadores": [
+        "+ da primeira raça",
+        "+ da segunda raça",
+        "+ da primeira raça"
+      ],
+      "escritas": [
+        "o porem da segunda raça",
+        "Hibridos só podem ser de 2 raças"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- da segunda raça",
+        "- da primeira raça",
+        "- da segunda raça"
+      ],
+      "escritas": [
+        "o porém da primeira raça"
+      ]
+    }
+  },
+  {
+    "raca": "Blat-wulf",
+    "vantagens": {
+      "modificadores": [
+        "+ velocidade",
+        "+ intelectualidade",
+        "+ carisma"
+      ],
+      "escritas": [
+        "facilidade com poderes aeriumantes/criomantes",
+        "andam sempre em grupo"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- força",
+        "- vida",
+        "- inteligencia"
+      ],
+      "escritas": [
+        "são submissos",
+        "sempre possuem um dono"
+      ]
+    }
+  },
+  {
+    "raca": "Gargola",
+    "vantagens": {
+      "modificadores": [
+        "+ velocidade",
+        "+ vida",
+        "+ força"
+      ],
+      "escritas": [
+        "facilidade com poderes aeriumantes/cronomantes/necromantes",
+        "possuem asas"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- carisma",
+        "- intelectualidade",
+        "- inteligencia"
+      ],
+      "escritas": [
+        "são submissos",
+        "durante o dia ficam na forma de pedra"
+      ]
+    }
+  },
+  {
+    "raca": "Fada",
+    "vantagens": {
+      "modificadores": [
+        "+ velocidade",
+        "+ inteligencia",
+        "+ carisma"
+      ],
+      "escritas": [
+        "facilidade com todos os poderes",
+        "possuem asas"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- força",
+        "- destreza",
+        "- vida"
+      ],
+      "escritas": [
+        "são sem paciência",
+        "perdem tempo demais se importando com os outros"
+      ]
+    }
+  },
+  {
+    "raca": "Lamia",
+    "vantagens": {
+      "modificadores": [
+        "+ velocidade",
+        "+ vida",
+        "+ carisma"
+      ],
+      "escritas": [
+        "facilidade com os poderes toxiomantes",
+        "são furtivos"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- força",
+        "- intelectualidade",
+        "- destreza"
+      ],
+      "escritas": [
+        "falam pouco",
+        "são agitadas"
+      ]
+    }
+  },
+  {
+    "raca": "Ciclopes",
+    "vantagens": {
+      "modificadores": [
+        "+ vida",
+        "+ ataque",
+        "+ destreza"
+      ],
+      "escritas": [
+        "consegue carregar até 15 armas"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- velocidade",
+        "- inteligencia",
+        "- carisma"
+      ],
+      "escritas": [
+        "não conseguem vestir roupa devido sua temperatura corporal"
+      ]
+    }
+  },
+  {
+    "raca": "Centauro",
+    "vantagens": {
+      "modificadores": [
+        "+ carisma",
+        "+ força",
+        "+ velocidade"
+      ],
+      "escritas": [
+        "consegue carregar bastante peso"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- destreza",
+        "- intelectualidade",
+        "- vida"
+      ],
+      "escritas": [
+        "não possue noção de espaço"
+      ]
+    }
+  },
+  {
+    "raca": "Minotauro",
+    "vantagens": {
+      "modificadores": [
+        "+ carisma",
+        "+ vida",
+        "+ força"
+      ],
+      "escritas": [
+        "consegue carregar bastante peso"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- velocidade",
+        "- destreza",
+        "- inteligência"
+      ],
+      "escritas": [
+        "comem muito"
+      ]
+    }
+  },
+  {
+    "raca": "Glitches",
+    "vantagens": {
+      "modificadores": [
+        "+ velocidade",
+        "+ destreza",
+        "+ vida"
+      ],
+      "escritas": [
+        "facilidade em magias electromante",
+        "conseguem se locomover em todos locais com aparelhos elétricos"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- força",
+        "- carisma",
+        "- intelectualidade"
+      ],
+      "escritas": [
+        "são preconceituosos com seres das trevas",
+        "falam pouco"
+      ]
+    }
+  },
+  {
+    "raca": "Seres das trevas",
+    "vantagens": {
+      "modificadores": [
+        "+ velocidade",
+        "+ força",
+        "+ inteligencia"
+      ],
+      "escritas": [
+        "facilidade em todas as magias",
+        "são muito intimidadores"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- vida",
+        "- intelectualidade",
+        "- carisma"
+      ],
+      "escritas": [
+        "são preconceituosos com Glitches",
+        "não possuem arrependimentos"
+      ]
+    }
+  },
+  {
+    "raca": "Entidade",
+    "vantagens": {
+      "modificadores": [
+        "+ velocidade",
+        "+ vida",
+        "+ inteligencia"
+      ],
+      "escritas": [
+        "facilidade com poderes espectromantes/necromantes",
+        "são intimidadores"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- intelectualidade",
+        "- carisma",
+        "- força"
+      ],
+      "escritas": [
+        "possuem um emocional fraco",
+        "são péssimos in fazer amigos"
+      ]
+    }
+  },
+  {
+    "raca": "Vampiro",
+    "vantagens": {
+      "modificadores": [
+        "+ força",
+        "+ velocidade",
+        "+ destreza"
+      ],
+      "escritas": [
+        "facilidade com poderes abstratctomantes",
+        "são intimidadores"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- vida",
+        "- intelectualidade",
+        "- carisma"
+      ],
+      "escritas": [
+        "morrem ao serem expostos ao sol(em 1 turno)",
+        "são egoístas"
+      ]
+    }
+  },
+  {
+    "raca": "Draco-man",
+    "vantagens": {
+      "modificadores": [
+        "+ força",
+        "+ vida",
+        "+ intelectualidade"
+      ],
+      "escritas": [
+        "facilidade com poderes pyromantes/hydromantes/geomantes/aeriumantes",
+        "são resistentes emocionalmente"
+      ]
+    },
+    "desvantagens": {
+      "modificadores": [
+        "- velocidade",
+        "- destreza",
+        "- inteligencia"
+      ],
+      "escritas": [
+        "tem dificuldades em fazer amigos",
+        "são impacientes"
+      ]
+    }
+  }
+]

@@ -1,0 +1,53 @@
+package br.com.frcli.model;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Equipamento extends Item {
+    private SlotType slotCompativel;
+    private Map<String, Double> modificadoresStatus; // e.g., {"Vida": 20.0, "Destreza": -1.0}
+    private List<Habilidade> habilidadesEmbutidas;
+
+    @JsonCreator
+    public Equipamento(
+            @JsonProperty("nome") String nome,
+            @JsonProperty("descricao") String descricao,
+            @JsonProperty("valorComercial") double valorComercial,
+            @JsonProperty("tipoMoeda") String tipoMoeda,
+            @JsonProperty("slotCompativel") SlotType slotCompativel,
+            @JsonProperty("modificadoresStatus") Map<String, Double> modificadoresStatus,
+            @JsonProperty("habilidadesEmbutidas") List<Habilidade> habilidadesEmbutidas) {
+        super(nome, descricao, valorComercial, tipoMoeda);
+        this.slotCompativel = slotCompativel;
+        this.modificadoresStatus = modificadoresStatus != null ? modificadoresStatus : new HashMap<>();
+        this.habilidadesEmbutidas = habilidadesEmbutidas != null ? habilidadesEmbutidas : new ArrayList<>();
+    }
+
+    public SlotType getSlotCompativel() {
+        return slotCompativel;
+    }
+
+    public void setSlotCompativel(SlotType slotCompativel) {
+        this.slotCompativel = slotCompativel;
+    }
+
+    public Map<String, Double> getModificadoresStatus() {
+        return modificadoresStatus;
+    }
+
+    public void setModificadoresStatus(Map<String, Double> modificadoresStatus) {
+        this.modificadoresStatus = modificadoresStatus;
+    }
+
+    public List<Habilidade> getHabilidadesEmbutidas() {
+        return habilidadesEmbutidas;
+    }
+
+    public void setHabilidadesEmbutidas(List<Habilidade> habilidadesEmbutidas) {
+        this.habilidadesEmbutidas = habilidadesEmbutidas;
+    }
+}

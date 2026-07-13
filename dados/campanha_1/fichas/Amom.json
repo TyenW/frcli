@@ -1,0 +1,83 @@
+{
+  "nome" : "Amom",
+  "historia" : "amom.md",
+  "idade" : 18,
+  "tamanho" : 194.0,
+  "raca" : {
+    "raca" : "Humano",
+    "vantagens" : {
+      "modificadores" : [ "+ velocidade", "+ intelectualidade", "+ destreza" ],
+      "escritas" : [ "possuem um tom de confiança na fala" ]
+    },
+    "desvantagens" : {
+      "modificadores" : [ "- carisma", "- vida", "- confiança" ],
+      "escritas" : [ "dificuldade em aprender magias necromantes e cronomantes" ]
+    }
+  },
+  "subRacas" : [ ],
+  "classe" : null,
+  "magias" : [ ],
+  "tierCampanha" : 1,
+  "inventario" : {
+    "tipo" : "GRANDE",
+    "itens" : [ ],
+    "dinheiroC" : 100.0,
+    "dinheiroG" : 0.0
+  },
+  "equipamentosEquipados" : {
+    "CABECA" : null,
+    "TRONCO" : null,
+    "MAO_SECUNDARIA" : null,
+    "MAO_PRINCIPAL" : null,
+    "ACESSORIO" : null
+  },
+  "statusBase" : {
+    "velocidade" : 0.0,
+    "carisma" : 0.0,
+    "inteligencia" : 0.0,
+    "forca" : 0.0,
+    "vida" : 120.0,
+    "destreza" : 0.0,
+    "intelectualidade" : 0.0
+  },
+  "statusFinal" : {
+    "velocidade" : 3.0,
+    "carisma" : -1.5,
+    "inteligencia" : 0.0,
+    "forca" : 0.0,
+    "vida" : 85.0,
+    "confianca" : -1.0,
+    "destreza" : 2.0,
+    "intelectualidade" : 4.0,
+    "cura" : 0.0
+  },
+  "buffsAtivos" : { },
+  "vantagensEscritas" : [ "possuem um tom de confiança na fala" ],
+  "desvantagensEscritas" : [ "dificuldade em aprender magias necromantes e cronomantes" ],
+  "contagemModificadores" : {
+    "velocidade" : {
+      "positivos" : 1,
+      "negativos" : 0
+    },
+    "intelectualidade" : {
+      "positivos" : 1,
+      "negativos" : 0
+    },
+    "destreza" : {
+      "positivos" : 1,
+      "negativos" : 0
+    },
+    "carisma" : {
+      "positivos" : 0,
+      "negativos" : 1
+    },
+    "vida" : {
+      "positivos" : 0,
+      "negativos" : 1
+    },
+    "confianca" : {
+      "positivos" : 0,
+      "negativos" : 1
+    }
+  }
+}
