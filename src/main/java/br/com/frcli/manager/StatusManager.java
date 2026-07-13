@@ -177,6 +177,17 @@ public class StatusManager {
             }
         }
 
+        // Aplica Efeitos Temporários (TTL)
+        if (p.getEfeitosTemporarios() != null) {
+            for (EfeitoTemporario eff : p.getEfeitosTemporarios()) {
+                if (!eff.estaExpirado()) {
+                    String attrKey = normalize(eff.getAtributo());
+                    double valorAtual = statusCalculado.getOrDefault(attrKey, 0.0);
+                    statusCalculado.put(attrKey, valorAtual + eff.getModificador());
+                }
+            }
+        }
+
         // Salva os status finais calculados
         p.setStatusFinal(statusCalculado);
     }
@@ -289,5 +300,27 @@ public class StatusManager {
         double delta = isPositive ? modifier.getPositivo() : modifier.getNegativo();
         double valorAtual = status.getOrDefault(normalizedAttr, 0.0);
         status.put(normalizedAttr, valorAtual + delta);
+    }
+
+    public static void registrarListeners() {
+        br.com.frcli.event.EventBus.getInstance().subscribe(br.com.frcli.event.TurnoFinalizadoEvent.class, e -> {
+            Personagem p = e.getPersonagem();
+            if (p != null && p.getEfeitosTemporarios() != null) {
+                boolean mudou = false;
+                Iterator<EfeitoTemporario> it = p.getEfeitosTemporarios().iterator();
+                while (it.hasNext()) {
+                    EfeitoTemporario eff = it.next();
+                    eff.decrementarTurno();
+                    if (eff.estaExpirado()) {
+                        it.remove();
+                        mudou = true;
+                        System.out.println("[StatusManager] O efeito temporário '" + eff.getNome() + "' expirou.");
+                    }
+                }
+                if (mudou) {
+                    recalcularStatus(p);
+                }
+            }
+        });
     }
 }

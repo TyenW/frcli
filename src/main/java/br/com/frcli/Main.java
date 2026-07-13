@@ -16,6 +16,10 @@ public class Main {
         // Executa a refatoração das tabelas de configuração (defesa -> vida)
         refatorarConfiguracoes(configDir);
 
+        // Inicializa listeners do Barramento de Eventos V2
+        br.com.frcli.manager.AuditManager.registrarListeners();
+        br.com.frcli.manager.StatusManager.registrarListeners();
+
         File racasFile = new File(configDir, "raças.json");
         File classesFile = new File(configDir, "classes.json");
         File magiasFile = new File(configDir, "magias.json");

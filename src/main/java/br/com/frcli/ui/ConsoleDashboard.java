@@ -2,7 +2,11 @@ package br.com.frcli.ui;
 
 import br.com.frcli.manager.*;
 import br.com.frcli.model.*;
+import br.com.frcli.event.*;
 import br.com.frcli.repository.FichaRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
 
 import java.util.*;
 
@@ -11,12 +15,14 @@ public class ConsoleDashboard {
     private final List<Raca> racas;
     private final List<Classe> classes;
     private final List<Magia> magias;
+    private List<Monstro> monstros = new ArrayList<>();
 
     public ConsoleDashboard(FichaRepository repository, List<Raca> racas, List<Classe> classes, List<Magia> magias) {
         this.repository = repository;
         this.racas = racas != null ? racas : new ArrayList<>();
         this.classes = classes != null ? classes : new ArrayList<>();
         this.magias = magias != null ? magias : new ArrayList<>();
+        carregarMonstros();
     }
 
     public void iniciar() {
@@ -26,9 +32,11 @@ public class ConsoleDashboard {
                 .addItem(2, "Inventário e Equipamentos", "Mochila & Armadura")
                 .addItem(3, "Magias e Combate", "Arena de Duelo")
                 .addItem(4, "Tabelas Globais", "Raças, Classes, Magias")
+                .addItem(5, "Mercado & Lojinha", "Comprar e vender itens")
+                .addItem(6, "Importação e Criação de Itens", "Importar CSV ou criar item catalogo")
                 .addItem(0, "Sair", "Encerrar jogo");
 
-            int opcao = menu.getUserChoice(0, 4);
+            int opcao = menu.getUserChoice(0, 6);
 
             switch (opcao) {
                 case 1:
@@ -42,6 +50,12 @@ public class ConsoleDashboard {
                     break;
                 case 4:
                     menuConfiguracoes();
+                    break;
+                case 5:
+                    menuMercado();
+                    break;
+                case 6:
+                    menuImportacaoItens();
                     break;
                 case 0:
                     UiFormatter.printBlank();
@@ -917,99 +931,501 @@ public class ConsoleDashboard {
         UiFormatter.printSuccess(p.getNome() + " esqueceu a magia " + removida.getNome() + ". Status recalculados! 🗑️");
     }
 
+    private void carregarMonstros() {
+        File file = new File("config/monstros.json");
+        ObjectMapper mapper = new ObjectMapper();
+        if (!file.exists()) {
+            List<Monstro> defaults = new ArrayList<>();
+            
+            // Goblin
+            List<LootEntry> entriesGoblin = new ArrayList<>();
+            entriesGoblin.add(new LootEntry(0.70, "MOEDA", "", 15.0));
+            entriesGoblin.add(new LootEntry(0.30, "ITEM", "Adaga de Cobre", 0.0));
+            LootTable tableGoblin = new LootTable(entriesGoblin);
+            Monstro goblin = new Monstro("Goblin Saqueador", "Orcoide", Arrays.asList("Ataque Furtivo", "Arremesso de Pedra"), tableGoblin);
+            goblin.getStatusFinal().put("vida", 70.0);
+            goblin.getStatusFinal().put("forca", 6.0);
+            goblin.getStatusFinal().put("velocidade", 14.0);
+            goblin.getStatusFinal().put("destreza", 8.0);
+            defaults.add(goblin);
+
+            // Dragão
+            List<LootEntry> entriesDragon = new ArrayList<>();
+            entriesDragon.add(new LootEntry(1.00, "MOEDA", "", 250.0));
+            entriesDragon.add(new LootEntry(0.50, "ITEM", "Elmo de Ferro", 0.0));
+            LootTable tableDragon = new LootTable(entriesDragon);
+            Monstro dragon = new Monstro("Dragão Jovem", "Réptil Alado", Arrays.asList("Sopro de Fogo", "Mordida Feroz"), tableDragon);
+            dragon.getStatusFinal().put("vida", 400.0);
+            dragon.getStatusFinal().put("forca", 28.0);
+            dragon.getStatusFinal().put("velocidade", 16.0);
+            dragon.getStatusFinal().put("destreza", 10.0);
+            defaults.add(dragon);
+
+            try {
+                File parent = file.getParentFile();
+                if (parent != null && !parent.exists()) {
+                    parent.mkdirs();
+                }
+                mapper.writerWithDefaultPrettyPrinter().writeValue(file, defaults);
+                monstros = defaults;
+            } catch (IOException e) {
+                System.err.println("Erro ao salvar monstros padrão: " + e.getMessage());
+            }
+        } else {
+            try {
+                monstros = mapper.readValue(file, new com.fasterxml.jackson.core.type.TypeReference<List<Monstro>>() {});
+            } catch (IOException e) {
+                System.err.println("Erro ao carregar monstros: " + e.getMessage());
+                monstros = new ArrayList<>();
+            }
+        }
+    }
+
     private void simularArena() {
         List<Personagem> personagens = repository.listarTodos();
-        if (personagens.size() < 2) {
-            UiFormatter.printWarning("Necessário possuir ao menos 2 personagens salvos em disco para lutar na Arena!");
+        carregarMonstros();
+
+        if (personagens.isEmpty()) {
+            UiFormatter.printWarning("Necessário possuir ao menos 1 personagem salvo para usar a Arena!");
             return;
         }
 
         UiFormatter.printSubtitle("ARENA DE DUELO ⚔️");
-        System.out.println("Escolha o ATACANTE:");
+        System.out.println("Escolha o ATACANTE (Jogador):");
         for (int i = 0; i < personagens.size(); i++) {
             System.out.printf("%d. %s\n", i + 1, personagens.get(i).getNome());
         }
         System.out.println("0. Voltar");
         int idxA = InputUtil.readInt("Atacante (ou 0 para Voltar): ", 0, personagens.size());
         if (idxA == 0) return;
-        Personagem atacante = personagens.get(idxA - 1);
+        Personagem atacante = ItemFactory.clonarItem(personagens.get(idxA - 1));
 
         System.out.println("Escolha o DEFENSOR:");
+        System.out.println("--- JOGADORES ---");
+        int count = 1;
         for (int i = 0; i < personagens.size(); i++) {
-            if (i == (idxA - 1)) continue; // Evita lutar consigo mesmo
-            System.out.printf("%d. %s\n", i + 1, personagens.get(i).getNome());
+            System.out.printf("%d. Jogador: %s\n", count++, personagens.get(i).getNome());
+        }
+        System.out.println("--- MONSTROS CATALOGADOS ---");
+        for (int i = 0; i < monstros.size(); i++) {
+            System.out.printf("%d. Monstro: %s (Tipo: %s)\n", count++, monstros.get(i).getNome(), monstros.get(i).getTipo());
         }
         System.out.println("0. Voltar");
-        int idxD = InputUtil.readInt("Defensor (ou 0 para Voltar): ", 0, personagens.size());
+        int idxD = InputUtil.readInt("Defensor (ou 0 para Voltar): ", 0, count - 1);
         if (idxD == 0) return;
-        Personagem defensor = personagens.get(idxD - 1);
 
-        System.out.println("\n--- Tipo de Ataque ---");
-        System.out.println("1. Físico (Ataque de Força / Arma)");
-        System.out.println("2. Mágico (Magia Elementar)");
-        System.out.println("0. Voltar");
-        int tipo = InputUtil.readInt("Opção: ", 0, 2);
-        if (tipo == 0) return;
+        EntidadeRPG defensor;
+        boolean defensorEhMonstro = false;
+        Monstro monstroDefensor = null;
 
-        Magia magiaUsada = null;
-        if (tipo == 2) {
-            if (atacante.getMagias().isEmpty()) {
-                UiFormatter.printWarning("O atacante não conhece magias! Usando ataque físico no lugar.");
-            } else {
-                System.out.println("Selecione a Magia para o ataque:");
-                for (int i = 0; i < atacante.getMagias().size(); i++) {
-                    System.out.printf("%d. %s\n", i + 1, atacante.getMagias().get(i).getNome());
-                }
-                System.out.println("0. Voltar");
-                int idxM = InputUtil.readInt("Magia (ou 0 para Voltar): ", 0, atacante.getMagias().size());
-                if (idxM == 0) return;
-                magiaUsada = atacante.getMagias().get(idxM - 1);
-            }
-        }
-
-        Double dbInput = InputUtil.readOptionalDouble("Dano base do golpe/magia (padrão é 50.0)");
-        double danoBase = dbInput != null ? dbInput : 50.0;
-
-        UiFormatter.printTitle("⚔️ COMBATE INICIADO ⚔️");
-        System.out.printf("%s VS %s\n", UiFormatter.BOLD + UiFormatter.RED + atacante.getNome() + UiFormatter.RESET, 
-                         UiFormatter.BOLD + UiFormatter.BLUE + defensor.getNome() + UiFormatter.RESET);
-
-        // 1. Iniciativa
-        Random r = new Random();
-        int d20A = r.nextInt(20) + 1;
-        int d20D = r.nextInt(20) + 1;
-        double initA = d20A + atacante.getStatusFinalAtributo("velocidade");
-        double initD = d20D + defensor.getStatusFinalAtributo("velocidade");
-        
-        System.out.printf("🎲 Iniciativa %s: d20(%d) + Vel(%.1f) = %.1f\n", atacante.getNome(), d20A, atacante.getStatusFinalAtributo("velocidade"), initA);
-        System.out.printf("🎲 Iniciativa %s: d20(%d) + Vel(%.1f) = %.1f\n", defensor.getNome(), d20D, defensor.getStatusFinalAtributo("velocidade"), initD);
-
-        // 2. Destreza (esquiva do defensor)
-        double esquivaChance = defensor.getStatusFinalAtributo("destreza") * 2; // ex: 10 destreza = 20%
-        int rolagemEsquiva = r.nextInt(100) + 1;
-        System.out.printf("🛡️ Tentando acertar o golpe (Defensor Esquiva: %.1f%% | Rolado no d100: %d)...\n", esquivaChance, rolagemEsquiva);
-
-        if (rolagemEsquiva <= esquivaChance) {
-            UiFormatter.printWarning("O golpe ERROU! " + defensor.getNome() + " esquivou graciosamente do ataque!");
+        if (idxD <= personagens.size()) {
+            defensor = ItemFactory.clonarItem(personagens.get(idxD - 1));
         } else {
-            UiFormatter.printSuccess("O golpe ACERTOU!");
-            double danoFinal;
+            monstroDefensor = monstros.get(idxD - personagens.size() - 1);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                String raw = mapper.writeValueAsString(monstroDefensor);
+                defensor = mapper.readValue(raw, Monstro.class);
+            } catch (Exception e) {
+                defensor = monstroDefensor;
+            }
+            defensorEhMonstro = true;
+        }
 
-            if (magiaUsada != null) {
-                // Cálculo elementar
-                danoFinal = CombatManager.calcularDano(defensor, magiaUsada, danoBase);
-                if (danoFinal > danoBase) {
-                    UiFormatter.printWarning("VULNERABILIDADE ELEMENTAR DETECTADA! O dano de " + magiaUsada.getNome() + " foi ampliado em 50%!");
-                }
+        EventBus.getInstance().publish(new br.com.frcli.event.CombateIniciadoEvent(atacante, defensor));
+
+        UiFormatter.printTitle("⚔️ DUELO ATÉ A MORTE ⚔️");
+        System.out.printf("%s (%s) VS %s\n", 
+            UiFormatter.BOLD + UiFormatter.RED + atacante.getNome() + UiFormatter.RESET, 
+            atacante.getStatusFinalAtributo("vida") + " HP",
+            UiFormatter.BOLD + UiFormatter.BLUE + defensor.getNome() + UiFormatter.RESET + " (" + defensor.getStatusFinalAtributo("vida") + " HP)");
+
+        Random r = new Random();
+        int turno = 1;
+        double hpA = atacante.getStatusFinalAtributo("vida");
+        double hpD = defensor.getStatusFinalAtributo("vida");
+
+        double maxHpA = hpA;
+        double maxHpD = hpD;
+
+        while (hpA > 0 && hpD > 0) {
+            System.out.println("\n" + UiFormatter.BOLD + "=== ROUND " + turno + " ===" + UiFormatter.RESET);
+
+            int d20A = r.nextInt(20) + 1;
+            int d20D = r.nextInt(20) + 1;
+            double initA = d20A + atacante.getStatusFinalAtributo("velocidade");
+            double initD = d20D + defensor.getStatusFinalAtributo("velocidade");
+
+            System.out.printf("🎲 Iniciativa %s: d20(%d) + Vel(%.1f) = %.1f\n", atacante.getNome(), d20A, atacante.getStatusFinalAtributo("velocidade"), initA);
+            System.out.printf("🎲 Iniciativa %s: d20(%d) + Vel(%.1f) = %.1f\n", defensor.getNome(), d20D, defensor.getStatusFinalAtributo("velocidade"), initD);
+
+            EntidadeRPG primeiro = (initA >= initD) ? atacante : defensor;
+            EntidadeRPG segundo = (initA >= initD) ? defensor : atacante;
+
+            // Primeiro ataca
+            if (primeiro == atacante) {
+                hpD = executarAcaoTurno(atacante, defensor, hpA, hpD, r);
             } else {
-                // Físico: sem redução (defesa não existe mais)
-                danoFinal = danoBase;
-                System.out.println("⚔️ Ataque físico direto (sem redução de defesa).");
+                hpA = executarAcaoTurno(defensor, atacante, hpD, hpA, r);
+            }
+            if (hpA <= 0 || hpD <= 0) break;
+
+            // Segundo ataca
+            if (segundo == atacante) {
+                hpD = executarAcaoTurno(atacante, defensor, hpA, hpD, r);
+            } else {
+                hpA = executarAcaoTurno(defensor, atacante, hpD, hpA, r);
             }
 
-            System.out.printf("💥 Dano Infligido: %.1f HP\n", danoFinal);
+            EventBus.getInstance().publish(new br.com.frcli.event.TurnoFinalizadoEvent(atacante, turno));
+            if (!defensorEhMonstro) {
+                EventBus.getInstance().publish(new br.com.frcli.event.TurnoFinalizadoEvent((Personagem) defensor, turno));
+            }
+
+            System.out.printf("\n[FIM DO ROUND %d] Saldo HP: %s: %.1f/%.1f | %s: %.1f/%.1f\n", 
+                turno, atacante.getNome(), hpA, maxHpA, defensor.getNome(), hpD, maxHpD);
+
+            turno++;
+            InputUtil.pressEnterToContinue();
         }
-        UiFormatter.printLine(UiFormatter.THICK_BORDER, 60);
+
+        EntidadeRPG vencedor = hpA > 0 ? atacante : defensor;
+        EntidadeRPG perdedor = hpA > 0 ? defensor : atacante;
+
+        UiFormatter.printSuccess("COMBATE TERMINADO! Vencedor: " + vencedor.getNome() + "! 🎉");
+        EventBus.getInstance().publish(new br.com.frcli.event.EntidadeDerrotadaEvent(perdedor));
+
+        if (defensorEhMonstro && hpA > 0) {
+            LootManager.LootResult loot = LootManager.gerarLoot((Monstro) defensor);
+            UiFormatter.printSubtitle("💎 RECOMPENSAS DO COMBATE");
+            System.out.printf("  Moedas G$ ganhas: G$ %.2f\n", loot.moedasG);
+            if (!loot.itens.isEmpty()) {
+                System.out.println("  Itens dropados:");
+                for (Item item : loot.itens) {
+                    System.out.println("    * " + item.getNome() + " (" + item.getDescricao() + ")");
+                }
+            } else {
+                System.out.println("  Nenhum item dropado.");
+            }
+
+            if (InputUtil.readBoolean("Deseja coletar todo o loot para a mochila do atacante? (s/n): ")) {
+                Personagem jogadorReal = personagens.get(idxA - 1);
+                try {
+                    InventoryManager.adicionarG(jogadorReal.getInventario(), loot.moedasG, false);
+                    System.out.println("G$ depositados na carteira.");
+                } catch (Exception e) {
+                    System.out.println("Erro ao depositar moedas.");
+                }
+
+                for (Item item : loot.itens) {
+                    try {
+                        InventoryManager.adicionarItem(jogadorReal.getInventario(), item);
+                        System.out.println("Item '" + item.getNome() + "' guardado na mochila.");
+                    } catch (MochilaCheiaException e) {
+                        UiFormatter.printError("Erro: Mochila cheia! Não foi possível pegar '" + item.getNome() + "'.");
+                        break;
+                    }
+                }
+                repository.salvar(jogadorReal);
+            }
+        }
+        InputUtil.pressEnterToContinue();
+    }
+
+    private double executarAcaoTurno(EntidadeRPG atacante, EntidadeRPG defensor, double hpAtacante, double hpDefensor, Random r) {
+        System.out.println("\n👉 Turno de " + atacante.getNome() + ":");
+
+        if (atacante instanceof Monstro) {
+            Monstro m = (Monstro) atacante;
+            String ataque = m.getAtaquesFixos().get(r.nextInt(m.getAtaquesFixos().size()));
+            System.out.println("👾 O monstro usa: " + ataque);
+
+            double danoBase = m.getStatusFinalAtributo("forca") * 1.5 + 10;
+            return processarAtaqueSimulado(atacante.getNome(), defensor, hpDefensor, danoBase, null, r);
+        }
+
+        Personagem p = (Personagem) atacante;
+        System.out.println("Escolha sua Ação:");
+        System.out.println("1. Ataque Físico Direto");
+        System.out.println("2. Usar Magia / Ataque Elemental");
+        System.out.println("3. Usar Buff Temporário (ex: Poção de Força/Vida)");
+        int escolha = InputUtil.readInt("Opção: ", 1, 3);
+
+        if (escolha == 1) {
+            double danoBase = p.getStatusFinalAtributo("forca") + 15.0;
+            return processarAtaqueSimulado(p.getNome(), defensor, hpDefensor, danoBase, null, r);
+        } else if (escolha == 2) {
+            if (p.getMagias().isEmpty()) {
+                UiFormatter.printWarning("Você não conhece magias! Usando ataque físico no lugar.");
+                double danoBase = p.getStatusFinalAtributo("forca") + 15.0;
+                return processarAtaqueSimulado(p.getNome(), defensor, hpDefensor, danoBase, null, r);
+            } else {
+                System.out.println("Selecione a Magia:");
+                for (int i = 0; i < p.getMagias().size(); i++) {
+                    System.out.printf("%d. %s (%s)\n", i + 1, p.getMagias().get(i).getNome(), p.getMagias().get(i).getNomeTraduzido());
+                }
+                int idxM = InputUtil.readInt("Magia: ", 1, p.getMagias().size());
+                Magia m = p.getMagias().get(idxM - 1);
+                double danoBase = p.getStatusFinalAtributo("inteligencia") * 1.5 + 20.0;
+                return processarAtaqueSimulado(p.getNome(), defensor, hpDefensor, danoBase, m, r);
+            }
+        } else {
+            System.out.println("Escolha o Buff:");
+            System.out.println("1. Poção de Fúria (+5 Força, 3 turnos)");
+            System.out.println("2. Poção de Haste (+5 Velocidade, 3 turnos)");
+            System.out.println("3. Poção de Defesa (+25 Vida/HP extra temporário, 2 turnos)");
+            int idxB = InputUtil.readInt("Opção: ", 1, 3);
+            EfeitoTemporario eff;
+            if (idxB == 1) {
+                eff = new EfeitoTemporario("Poção de Fúria", "forca", 5.0, 3);
+            } else if (idxB == 2) {
+                eff = new EfeitoTemporario("Poção de Haste", "velocidade", 5.0, 3);
+            } else {
+                eff = new EfeitoTemporario("Poção de Defesa", "vida", 25.0, 2);
+            }
+            p.getEfeitosTemporarios().add(eff);
+            StatusManager.recalcularStatus(p);
+            UiFormatter.printSuccess("Aplicou: " + eff.getNome() + "! Status recalculados!");
+            return hpDefensor;
+        }
+    }
+
+    private double processarAtaqueSimulado(String atacanteNome, EntidadeRPG defensor, double hpDefensor, double danoBase, Magia m, Random r) {
+        double destrezaDefensor = defensor.getStatusFinalAtributo("destreza");
+        double esquivaChance = Math.min(40.0, destrezaDefensor * 2.0); // max 40% de esquiva
+
+        int rolagem = r.nextInt(100) + 1;
+        if (rolagem <= esquivaChance) {
+            UiFormatter.printWarning("O golpe ERROU! " + defensor.getNome() + " se esquivou!");
+            return hpDefensor;
+        }
+
+        double danoFinal = danoBase;
+        if (m != null) {
+            danoFinal = CombatManager.calcularDano(defensor, m, danoBase);
+            if (danoFinal > danoBase) {
+                UiFormatter.printWarning("VULNERABILIDADE ELEMENTAR DETECTADA! Dano ampliado em 50%!");
+            }
+        }
+
+        double novoHp = Math.max(0.0, hpDefensor - danoFinal);
+        System.out.printf("💥 Dano Infligido em %s: %.1f HP. Novo HP: %.1f\n", defensor.getNome(), danoFinal, novoHp);
+        return novoHp;
+    }
+
+    private void menuMercado() {
+        Personagem p = selecionarPersonagem();
+        if (p == null) return;
+
+        while (true) {
+            MenuBuilder menu = new MenuBuilder("🛒 MERCADO IMPERIAL - " + p.getNome().toUpperCase());
+            menu.addItem(1, "Comprar Item do Catálogo", "Comprar novos itens")
+                .addItem(2, "Vender Item da Mochila", "Vender para o mercado por 50%")
+                .addItem(3, "Exibir Catálogo Geral", "Ver itens disponíveis")
+                .addItem(0, "Voltar", "Menu anterior");
+
+            int opcao = menu.getUserChoice(0, 3);
+            switch (opcao) {
+                case 1:
+                    comprarItemLoja(p);
+                    break;
+                case 2:
+                    venderItemLoja(p);
+                    break;
+                case 3:
+                    exibirCatalogoLoja();
+                    break;
+                case 0:
+                    return;
+            }
+        }
+    }
+
+    private void comprarItemLoja(Personagem p) {
+        List<Item> catalogo = ItemFactory.listarCatalogo();
+        if (catalogo.isEmpty()) {
+            UiFormatter.printWarning("O catálogo global está vazio. Importe itens primeiro!");
+            return;
+        }
+
+        UiFormatter.printSubtitle("🛍️ COMPRAR ITEM");
+        System.out.println("Saldo Atual: G$ " + p.getInventario().getDinheiroG() + " / " + p.getInventario().getMaxG() + " (Teto)");
+        for (int i = 0; i < catalogo.size(); i++) {
+            Item item = catalogo.get(i);
+            double precoCompra = EconomyManager.calcularPrecoCompra(item, p);
+            System.out.printf("%d. %s - Preço Base: G$ %.2f | Com Carisma: G$ %.2f (%s)\n", 
+                i + 1, item.getNome(), item.getValorComercial(), precoCompra, item.getDescricao());
+        }
+        System.out.println("0. Voltar");
+        int index = InputUtil.readInt("Opção: ", 0, catalogo.size());
+        if (index == 0) return;
+
+        Item itemEscolhido = catalogo.get(index - 1);
+        double precoFinal = EconomyManager.calcularPrecoCompra(itemEscolhido, p);
+        if (p.getInventario().getItens().size() >= p.getInventario().getMaxItens()) {
+            UiFormatter.printError("Erro: Mochila cheia!");
+            return;
+        }
+        if (p.getInventario().getDinheiroG() < precoFinal) {
+            UiFormatter.printError("Erro: G$ insuficiente!");
+            return;
+        }
+
+        if (EconomyManager.comprarItem(p, itemEscolhido)) {
+            repository.salvar(p);
+            UiFormatter.printSuccess("Item '" + itemEscolhido.getNome() + "' comprado com sucesso por G$ " + precoFinal + "! 🎒");
+        } else {
+            UiFormatter.printError("Erro ao processar transação.");
+        }
+    }
+
+    private void venderItemLoja(Personagem p) {
+        List<Item> itens = p.getInventario().getItens();
+        if (itens.isEmpty()) {
+            UiFormatter.printWarning("Sua mochila está vazia!");
+            return;
+        }
+
+        UiFormatter.printSubtitle("💰 VENDER ITEM (50% do Preço Base)");
+        for (int i = 0; i < itens.size(); i++) {
+            Item item = itens.get(i);
+            double precoVenda = EconomyManager.calcularPrecoVenda(item, p);
+            System.out.printf("%d. %s (Venda: G$ %.2f) - %s\n", i + 1, item.getNome(), precoVenda, item.getDescricao());
+        }
+        System.out.println("0. Voltar");
+        int index = InputUtil.readInt("Opção: ", 0, itens.size());
+        if (index == 0) return;
+
+        Item itemVenda = itens.get(index - 1);
+        double precoVendaFinal = EconomyManager.calcularPrecoVenda(itemVenda, p);
+        if (p.getInventario().getDinheiroG() + precoVendaFinal > p.getInventario().getMaxG()) {
+            UiFormatter.printWarning("Atenção: Adicionar G$ " + precoVendaFinal + " excederá o teto da sua mochila (" + p.getInventario().getMaxG() + "). O excedente será descartado.");
+        }
+
+        if (EconomyManager.venderItem(p, itemVenda)) {
+            repository.salvar(p);
+            UiFormatter.printSuccess("Item '" + itemVenda.getNome() + "' vendido com sucesso por G$ " + precoVendaFinal + "! 🪙");
+        } else {
+            UiFormatter.printError("Erro ao vender o item.");
+        }
+    }
+
+    private void exibirCatalogoLoja() {
+        List<Item> catalogo = ItemFactory.listarCatalogo();
+        if (catalogo.isEmpty()) {
+            UiFormatter.printWarning("Nenhum item cadastrado no catálogo.");
+            return;
+        }
+        UiFormatter.printSubtitle("📖 CATÁLOGO DE ITENS DISPONÍVEIS");
+        for (Item item : catalogo) {
+            String tipo = (item instanceof Equipamento) ? "EQUIPAMENTO (" + ((Equipamento) item).getSlotCompativel() + ")" : "CONSUMÍVEL";
+            System.out.printf("  * %s (%s) - Valor Base: G$ %.2f - %s\n", 
+                item.getNome(), tipo, item.getValorComercial(), item.getDescricao());
+        }
+        InputUtil.pressEnterToContinue();
+    }
+
+    private void menuImportacaoItens() {
+        while (true) {
+            MenuBuilder menu = new MenuBuilder("🛠️ IMPORTAÇÃO & CADASTRO DE ITENS 🛠️");
+            menu.addItem(1, "Criar Item e Adicionar ao Catálogo", "Formulário manual")
+                .addItem(2, "Importar Itens em Lote (CSV)", "Ler arquivos da pasta dados/imports")
+                .addItem(0, "Voltar", "Menu anterior");
+
+            int opcao = menu.getUserChoice(0, 2);
+            switch (opcao) {
+                case 1:
+                    criarItemManualCatalogo();
+                    break;
+                case 2:
+                    importarLoteCSV();
+                    break;
+                case 0:
+                    return;
+            }
+        }
+    }
+
+    private void criarItemManualCatalogo() {
+        UiFormatter.printSubtitle("CADASTRAR NOVO ITEM NO CATÁLOGO");
+        String nome = InputUtil.readStringNotEmpty("Nome do Item: ");
+        String desc = InputUtil.readString("Descrição: ");
+        double valor = InputUtil.readDouble("Valor Comercial Base: ", 0, Double.MAX_VALUE);
+
+        System.out.println("Tipo do Item:");
+        System.out.println("1. Equipamento");
+        System.out.println("2. Consumível");
+        System.out.println("0. Cancelar");
+        int tipoItem = InputUtil.readInt("Opção: ", 0, 2);
+        if (tipoItem == 0) return;
+
+        Item novoItem;
+        if (tipoItem == 1) {
+            System.out.println("Selecione o Slot Compatível:");
+            SlotType[] slots = SlotType.values();
+            for (int i = 0; i < slots.length; i++) {
+                System.out.printf("%d. %s\n", i + 1, slots[i]);
+            }
+            System.out.println("0. Cancelar");
+            int idxSlot = InputUtil.readInt("Opção: ", 0, slots.length);
+            if (idxSlot == 0) return;
+            SlotType slot = slots[idxSlot - 1];
+
+            Map<String, Double> mods = new HashMap<>();
+            while (InputUtil.readBoolean("Adicionar modificador de atributo? (s/n): ")) {
+                String attr = InputUtil.readStringNotEmpty("Nome do atributo (ex: Vida, Forca): ");
+                double mod = InputUtil.readDouble("Modificador (+/- valor): ");
+                mods.put(attr, mod);
+            }
+
+            List<Habilidade> habs = new ArrayList<>();
+            while (InputUtil.readBoolean("Adicionar habilidade embutida? (s/n): ")) {
+                String habNome = InputUtil.readStringNotEmpty("Nome da Habilidade: ");
+                String habTipo = InputUtil.readBoolean("Habilidade Ativa (s) ou Passiva (n)? ") ? "ATIVA" : "PASSIVA";
+                String habDesc = InputUtil.readString("Descrição da habilidade: ");
+                habs.add(new Habilidade(habNome, habTipo, habDesc));
+            }
+
+            novoItem = new Equipamento(nome, desc, valor, "G$", slot, mods, habs);
+        } else {
+            int cargas = InputUtil.readInt("Cargas / Usos: ", 1, 100);
+            novoItem = new ItemConsumivel(nome, desc, valor, "G$", cargas);
+        }
+
+        ItemFactory.adicionarAoCatalogo(novoItem);
+        UiFormatter.printSuccess("Item '" + nome + "' cadastrado no catálogo global!");
+    }
+
+    private void importarLoteCSV() {
+        File dir = new File("dados/imports");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        File[] csvFiles = dir.listFiles((d, name) -> name.endsWith(".csv"));
+        if (csvFiles == null || csvFiles.length == 0) {
+            UiFormatter.printWarning("Nenhum arquivo .csv encontrado na pasta '/dados/imports/'.");
+            System.out.println("Crie um arquivo .csv contendo linhas formatadas como:");
+            System.out.println("Nome;Descrição;PreçoBase;EQUIPAMENTO;Slot;Modificadores(Atributo:Valor,Atributo:Valor);Habilidades(Nome:Tipo:Desc)");
+            System.out.println("Exemplo: Espada de Ferro;Espada Curta;80.0;EQUIPAMENTO;MAO_PRINCIPAL;Forca:2;Golpe Rapido:ATIVA:Dano leve");
+            InputUtil.pressEnterToContinue();
+            return;
+        }
+
+        UiFormatter.printSubtitle("SELECIONE O ARQUIVO PARA IMPORTAR:");
+        for (int i = 0; i < csvFiles.length; i++) {
+            System.out.printf("%d. %s\n", i + 1, csvFiles[i].getName());
+        }
+        System.out.println("0. Voltar");
+        int choice = InputUtil.readInt("Opção: ", 0, csvFiles.length);
+        if (choice == 0) return;
+
+        File selected = csvFiles[choice - 1];
+        try {
+            int count = ItemFactory.importarCSV(selected);
+            UiFormatter.printSuccess("Importação concluída! " + count + " itens foram adicionados ao catálogo.");
+        } catch (Exception e) {
+            UiFormatter.printError("Erro ao importar CSV: " + e.getMessage());
+        }
         InputUtil.pressEnterToContinue();
     }
 

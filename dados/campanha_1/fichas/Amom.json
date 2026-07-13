@@ -21,8 +21,7 @@
   "inventario" : {
     "tipo" : "GRANDE",
     "itens" : [ ],
-    "dinheiroC" : 100.0,
-    "dinheiroG" : 0.0
+    "dinheiroG" : 100.0
   },
   "equipamentosEquipados" : {
     "CABECA" : null,

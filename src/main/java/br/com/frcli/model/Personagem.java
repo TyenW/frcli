@@ -3,9 +3,8 @@ package br.com.frcli.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.*;
 
-public class Personagem {
+public class Personagem extends EntidadeRPG {
     // Identidade
-    private String nome;
     private String historia;
     private Integer idade;
     private Double tamanho;
@@ -23,19 +22,21 @@ public class Personagem {
 
     // Atributos e Modificadores
     private Map<String, Double> statusBase; // Apenas valores iniciais do personagem (ex: Vida: 120, Força: 0, etc.)
-    private Map<String, Double> statusFinal; // Resultados dinâmicos calculados pelo StatusManager
     private Map<String, Double> buffsAtivos; // Buffs/Debuffs adicionais em memória
+    private List<EfeitoTemporario> efeitosTemporarios; // Buffs e debuffs temporários com TTL em turnos
     private List<String> vantagensEscritas; // Acumulado das descrições de raça, classe, magias
     private List<String> desvantagensEscritas; // Acumulado das descrições negativas
     private Map<String, AtributoContagem> contagemModificadores; // Contagem de + e - por atributo
 
     public Personagem() {
+        super();
         this.magias = new ArrayList<>();
         this.subRacas = new ArrayList<>();
         this.equipamentosEquipados = new HashMap<>();
         this.statusBase = new HashMap<>();
         this.statusFinal = new HashMap<>();
         this.buffsAtivos = new HashMap<>();
+        this.efeitosTemporarios = new ArrayList<>();
         this.vantagensEscritas = new ArrayList<>();
         this.desvantagensEscritas = new ArrayList<>();
         this.contagemModificadores = new HashMap<>();
@@ -159,6 +160,17 @@ public class Personagem {
 
     public void setBuffsAtivos(Map<String, Double> buffsAtivos) {
         this.buffsAtivos = buffsAtivos;
+    }
+
+    public List<EfeitoTemporario> getEfeitosTemporarios() {
+        if (efeitosTemporarios == null) {
+            efeitosTemporarios = new ArrayList<>();
+        }
+        return efeitosTemporarios;
+    }
+
+    public void setEfeitosTemporarios(List<EfeitoTemporario> efeitosTemporarios) {
+        this.efeitosTemporarios = efeitosTemporarios != null ? efeitosTemporarios : new ArrayList<>();
     }
 
     public List<String> getVantagensEscritas() {

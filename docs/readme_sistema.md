@@ -24,6 +24,7 @@ Para consultar tabelas, atributos e balanceamentos específicos, acesse os sub-d
 3. 🧬 **[Características das Raças (raças.md)](file:///c:/Users/pedro/Desktop/Codigos/frcli/docs/raças.md)**: Detalhamento de bônus, penalidades e características escritas das raças (e Híbridos).
 4. ✨ **[Magias, Poderes e Armas (magias.md)](file:///c:/Users/pedro/Desktop/Codigos/frcli/docs/magias.md)**: Tipos de magia, estilos de combate e resistências elementares.
 5. 📂 **[Estrutura da Ficha (ficha.md)](file:///c:/Users/pedro/Desktop/Codigos/frcli/docs/ficha.md)**: Limites de inventário, moedas e diretrizes iniciais da campanha.
+6. 🧠 **[Planejamento V2 (arquitetura_v2.md)](file:///c:/Users/pedro/Desktop/Codigos/frcli/docs/arquitetura_v2.md)**: Barramento de eventos, ingestão de dados em massa, buffs temporários, NPC/monstros, precificação dinâmica e loot procedural.
 
 ---
 

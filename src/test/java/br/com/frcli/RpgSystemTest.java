@@ -3,6 +3,7 @@ package br.com.frcli;
 import br.com.frcli.manager.*;
 import br.com.frcli.model.*;
 import br.com.frcli.repository.*;
+import br.com.frcli.event.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -317,5 +318,39 @@ public class RpgSystemTest {
         assertTrue(personagem.getVantagensEscritas().contains("Confiança"));
         assertTrue(personagem.getVantagensEscritas().contains("Especialidade da Classe: Magias Elementares"));
         assertTrue(personagem.getDesvantagensEscritas().contains("Dificuldade com necromancia"));
+    }
+
+    @Test
+    public void testV2EngineFeatures() {
+        // 1. Testa EventBus
+        final boolean[] eventFired = {false};
+        EventBus.getInstance().subscribe(CombateIniciadoEvent.class, e -> {
+            eventFired[0] = true;
+            assertEquals("Geraldo", e.getAtacante().getNome());
+        });
+
+        Monstro goblin = new Monstro("Goblin", "Orcoide", Arrays.asList("Ataque"), new LootTable());
+        EventBus.getInstance().publish(new CombateIniciadoEvent(personagem, goblin));
+        assertTrue(eventFired[0]);
+
+        // 2. Testa Efeito Temporário
+        EfeitoTemporario eff = new EfeitoTemporario("Bênção", "forca", 5.0, 2);
+        personagem.getEfeitosTemporarios().add(eff);
+        StatusManager.recalcularStatus(personagem);
+
+        double forcaComBuff = personagem.getStatusFinalAtributo("forca");
+
+        EventBus.getInstance().publish(new TurnoFinalizadoEvent(personagem, 1));
+        assertEquals(1, eff.getTurnosRestantes());
+
+        EventBus.getInstance().publish(new TurnoFinalizadoEvent(personagem, 2));
+        assertTrue(eff.estaExpirado());
+        assertTrue(personagem.getStatusFinalAtributo("forca") < forcaComBuff);
+
+        // 3. Testa EconomyManager
+        personagem.getStatusFinal().put("carisma", 25.0);
+        Item item = new ItemConsumivel("Poção", "Cura", 100.0, "G$", 1);
+        double precoCompra = EconomyManager.calcularPrecoCompra(item, personagem);
+        assertEquals(50.0, precoCompra, 0.001);
     }
 }

@@ -35,28 +35,23 @@ public class CombatManager {
         return acoes;
     }
 
-    /**
-     * Calcula o dano final infligido ao defensor por um ataque elemental (magia).
-     * Se o defensor possuir uma magia que o torne vulnerável à magia atacante (ex: Pyromacia vulnerável a Hydromacia),
-     * o dano sofre uma penalidade (aumento de 50%).
-     */
-    public static double calcularDano(Personagem defensor, Magia magiaAtacante, double danoBase) {
+    public static double calcularDano(EntidadeRPG defensor, Magia magiaAtacante, double danoBase) {
         if (defensor == null || magiaAtacante == null) return danoBase;
 
         String nomeMagiaAtacante = StatusManager.normalize(magiaAtacante.getNome());
         double multiplicadorDano = 1.0;
 
-        // Varre as magias do defensor para checar fraquezas (modificadores negativos)
-        if (defensor.getMagias() != null) {
-            for (Magia magiaDefensor : defensor.getMagias()) {
-                if (magiaDefensor.getModificadores() != null && magiaDefensor.getModificadores().getNegativos() != null) {
-                    for (String neg : magiaDefensor.getModificadores().getNegativos()) {
-                        String negNorm = StatusManager.normalize(neg);
-                        // Exemplo: "- resistencia a hydromacia" ou "- resistencia a necromacia/geomacia"
-                        if (negNorm.contains("resistencia") || negNorm.contains("resistência")) {
-                            if (negNorm.contains(nomeMagiaAtacante)) {
-                                // Encontrou fraqueza contra o elemento atacante!
-                                multiplicadorDano *= 1.5; // Sofre +50% de dano
+        if (defensor instanceof Personagem) {
+            Personagem pDef = (Personagem) defensor;
+            if (pDef.getMagias() != null) {
+                for (Magia magiaDefensor : pDef.getMagias()) {
+                    if (magiaDefensor.getModificadores() != null && magiaDefensor.getModificadores().getNegativos() != null) {
+                        for (String neg : magiaDefensor.getModificadores().getNegativos()) {
+                            String negNorm = StatusManager.normalize(neg);
+                            if (negNorm.contains("resistencia") || negNorm.contains("resistência")) {
+                                if (negNorm.contains(nomeMagiaAtacante)) {
+                                    multiplicadorDano *= 1.5;
+                                }
                             }
                         }
                     }

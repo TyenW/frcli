@@ -66,6 +66,13 @@ public class EquipmentManager {
 
         // Recalcula status finais
         StatusManager.recalcularStatus(p);
+
+        // Dispara eventos no barramento
+        for (Equipamento des : desequipados) {
+            br.com.frcli.event.EventBus.getInstance().publish(new br.com.frcli.event.ItemDesequipadoEvent(p, des, slotReal));
+        }
+        br.com.frcli.event.EventBus.getInstance().publish(new br.com.frcli.event.ItemEquipadoEvent(p, equip, slotReal));
+
         return desequipados;
     }
 
@@ -88,6 +95,10 @@ public class EquipmentManager {
 
         // Recalcula status
         StatusManager.recalcularStatus(p);
+
+        // Dispara evento de desequipar
+        br.com.frcli.event.EventBus.getInstance().publish(new br.com.frcli.event.ItemDesequipadoEvent(p, removido, slot));
+
         return removido;
     }
 
