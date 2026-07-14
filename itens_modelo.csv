@@ -1,0 +1,51 @@
+# Arquivo CSV de exemplo para importação de itens no sistema FRCLI
+# Formato completo das colunas (separadas por ponto e vírgula):
+# 1. Nome
+# 2. Descrição
+# 3. Valor Comercial
+# 4. Tipo (EQUIPAMENTO ou CONSUMIVEL)
+# 5. Slot ou Cargas
+# 6. Modificadores (Opcional, formato: atributo:valor,atributo:valor)
+# 7. Habilidades (Opcional, formato: nome:tipo:descrição,nome:tipo:descrição)
+# 8. Dano da Arma (Opcional, decimal)
+# 9. Tipo de Munição / Recurso (Opcional, nome do item consumido na mochila)
+# 10. Quantidade de Munição / Cargas (Opcional, inteiro)
+#
+# Slots válidos de EQUIPAMENTO: CABECA, TRONCO, MAO_PRINCIPAL, MAO_SECUNDARIA, DUAS_MAOS, ACESSORIO_1, ACESSORIO_2, ACESSORIO
+# Tipos de Habilidade válidos: ATIVA, PASSIVA
+#
+# ==========================================
+# EXEMPLOS DE EQUIPAMENTOS / ARMAS
+# ==========================================
+#
+# Arma física simples (espada): 15 de dano, sem custos de recurso/munição
+Espada de Aço;Uma espada balanceada e afiada de aço;120.00;EQUIPAMENTO;MAO_PRINCIPAL;forca:2.0;;15.0;;
+#
+# Arma à distância (arco): 20 de dano, consome 1x item com nome "Flecha" como munição
+Arco Longo;Um arco grande de madeira nobre;180.00;EQUIPAMENTO;DUAS_MAOS;destreza:3.0;;20.0;Flecha;1
+#
+# Arma mágica (cajado): 25 de dano, consome 10x item com nome "Mana" da mochila a cada ataque
+Cajado Arcano;Um cajado com cristal brilhante na ponta;250.00;EQUIPAMENTO;DUAS_MAOS;inteligencia:4.0;;25.0;Mana;10
+#
+# Arma sombria (foice): 40 de dano, consome 1x item com nome "Alma" da mochila a cada ataque
+Foice do Ceifador;Uma foice com aura sombria e gélida;500.00;EQUIPAMENTO;DUAS_MAOS;forca:5.0;;40.0;Alma;1
+#
+# Armadura de placas (sem dano, sem custos de munição)
+Armadura de Ferro;Armadura pesada com excelente proteção física;300.00;EQUIPAMENTO;TRONCO;vida:40.0,velocidade:-3.0;;;;
+#
+# ==========================================
+# EXEMPLOS DE CONSUMÍVEIS / MUNIÇÃO
+# ==========================================
+#
+# Munição empacotada (Aljava de 10 flechas)
+Aljava de Flechas;Contém flechas de ponta de ferro para arcos;35.00;CONSUMIVEL;10
+#
+# Munição individual (Um item comum "Flecha" com 1 carga)
+Flecha;Uma flecha avulsa simples;2.00;CONSUMIVEL;1
+#
+# Poção de cura tradicional
+Poção de Vida Menor;Uma poção alquímica que recupera 50 HP;25.00;CONSUMIVEL;3
+#
+# Cristais de Recursos (utilizados pelas armas mágicas/sombrias como munição)
+Mana;Cristal de pura energia mágica;10.00;CONSUMIVEL;10
+Alma;Essência espiritual de um ser derrotado;500.00;CONSUMIVEL;1

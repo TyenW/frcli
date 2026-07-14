@@ -1,0 +1,41 @@
+Nome;Descrição;Valor Comercial;Tipo;Slot ou Cargas;Modificadores;Habilidades;Dano da Arma;Tipo de Munição / Recurso;Quantidade de Munição / Cargas
+PenDrive de corrupção;Um pendrive com arquivos corrompidos;50.00;EQUIPAMENTO;ACESSORIO;;;;;
+Placa de metal Aleatoria muito pika;Uma placa de metal resistente;100.00;EQUIPAMENTO;ACESSORIO;;;;;
+Cajado muito foda;Um cajado incrivelmente poderoso;300.00;EQUIPAMENTO;DUAS_MAOS;;;40.0;Mana;15
+Livro na lingua dos seres das trevas antigos;Um tomo macabro e esquecido;250.00;EQUIPAMENTO;MAO_SECUNDARIA;;;;;
+ExoEsqueleto de Tiranitar;Armadura biomecânica pesada;1500.00;EQUIPAMENTO;TRONCO;vida:600.0,velocidade:-10.0,forca:5.0;;;;
+Capa preta;Uma capa que concede estilo inigualável;120.00;EQUIPAMENTO;TRONCO;estilo:10.0;;;;
+Faixa do Gues;Faixa muito pika que o gues deu;400.00;EQUIPAMENTO;CABECA;carisma:50.0,inteligencia:25.0,velocidade:5.0;;;;
+Cabeça do Boss do Santuário de Säývôl;Troféu de um boss sagrado;2000.00;EQUIPAMENTO;ACESSORIO;;;;;
+Frasquinho Vazio;Recipiente de vidro sem uso imediato;5.00;CONSUMIVEL;1;;;;;
+Foice;Arma cortante;80.00;EQUIPAMENTO;DUAS_MAOS;;;18.0;;
+Lamina de um bicho das trevas;Lâmina extraída de uma criatura abissal;150.00;EQUIPAMENTO;MAO_PRINCIPAL;;;25.0;;
+Foice com corrente longa;Arma de alcance médio;200.00;EQUIPAMENTO;DUAS_MAOS;;;30.0;;
+Celular;Dispositivo eletrônico de comunicação;500.00;EQUIPAMENTO;ACESSORIO;;;;;
+Frasco de Sangue;Me lembra os dias sangrentos do massacre com meus pais;100.00;CONSUMIVEL;1;buff:1.0;;;;
+Lança Agulha;Lança de perfuração precisa (19/20);250.00;EQUIPAMENTO;DUAS_MAOS;;;22.0;;
+Tubo de gás de Cura;Dispositivo medicinal inalatório para regeneração;75.00;CONSUMIVEL;2;;;;;
+Foice Dupla Verde e Roxa;Arma cortante exótica e letal;350.00;EQUIPAMENTO;DUAS_MAOS;;;45.0;;
+Pote com 1 alma;Recipiente selado contendo um espírito;500.00;CONSUMIVEL;1;;;;;
+Colar do Guess;Colar místico e brilhante;300.00;EQUIPAMENTO;ACESSORIO_1;;;;;
+Espada Élfica;Lâmina forjada por elfos com brilho suave;450.00;EQUIPAMENTO;MAO_PRINCIPAL;;;35.0;;
+Colar do Sólon;Relíquia antiga e misteriosa;350.00;EQUIPAMENTO;ACESSORIO_2;;;;;
+Luvas de mercúrio;Pesadas e imbuídas de vitalidade bruta;400.00;EQUIPAMENTO;ACESSORIO;velocidade:-8.0,forca:5.0,vida:20.0;;;;
+Papel: Perceber na Ilha dos Gigantes;Pista importante anotada;10.00;CONSUMIVEL;1;;;;;
+Celular Futurista;Comunicação de altíssima tecnologia;1500.00;EQUIPAMENTO;ACESSORIO;;;;;
+Machado Misterioso (???);Machado sombrio que absorve essência;5000.00;EQUIPAMENTO;DUAS_MAOS;;Ataque retardado:PASSIVA:socos atrasados,Drenar Vida:PASSIVA:Se matar inimigo pega status senão perde;250.0;;
+Lâmina de Plasma Corrompida;Espada que emite uma luz negra crepitante;850.00;EQUIPAMENTO;MAO_PRINCIPAL;;Corte Profano:ATIVA:Causa sangramento profundo;55.0;Alma;2
+Sobretudo de Couro Mutante;Casaco resistente feito com pele de aberrações;450.00;EQUIPAMENTO;TRONCO;vida:150.0,furtividade:10.0;;;;
+Seringa de Adrenalina Obscura;Estimulante que aumenta a capacidade física a um custo;120.00;CONSUMIVEL;1;;;;;
+Anel do Abismo;Um anel gélido ao toque que sussurra feitiços;600.00;EQUIPAMENTO;ACESSORIO_1;inteligencia:20.0,vida:-50.0;;;;
+Pistola Arcana;Arma de fogo modificada para disparar energia;900.00;EQUIPAMENTO;MAO_PRINCIPAL;;;35.0;Bala Mágica;1
+Caixa de Balas Mágicas;Munição carregada com energia pura;50.00;CONSUMIVEL;15;;;;;
+Óculos de Visão Térmica;Equipamento tático militar avançado;750.00;EQUIPAMENTO;CABECA;percepcao:15.0;;;;
+Marreta Quebra-Mundos;Arma brutal de destruição maciça, muito pesada;1200.00;EQUIPAMENTO;DUAS_MAOS;forca:30.0,velocidade:-15.0;Esmagar Território:ATIVA:Dano em área;120.0;Alma;5
+Fragmento de Estrela Morta;Pequeno cristal escuro que palpita suavemente;300.00;CONSUMIVEL;1;;;;;
+Drone de Rastreamento;Pequeno drone autônomo companheiro;2000.00;EQUIPAMENTO;ACESSORIO_2;velocidade:5.0;Mapear Área:ATIVA:Revela inimigos ocultos;;Mana;10
+Manto das Almas Perdidas;Capa tecida com lamentos fantasmagóricos;1100.00;EQUIPAMENTO;TRONCO;vida:100.0,inteligencia:15.0;Evasão Etérea:PASSIVA:Chance de ignorar ataques;;;
+Granada de Fogo Fátuo;Explosivo místico de chamas azuis;150.00;CONSUMIVEL;3;;Explosão Arcana:ATIVA:Dano em área mágico;;;
+Botas Antigravidade;Calçado tecnológico que permite saltos enormes;800.00;EQUIPAMENTO;ACESSORIO;velocidade:15.0,agilidade:20.0;;;;
+Escudo Torre Ciber-Gótico;Escudo com painéis de neon e metal reforçado;950.00;EQUIPAMENTO;MAO_SECUNDARIA;vida:300.0,velocidade:-5.0;Barreira de Plasma:ATIVA:Absorve dano mágico;;Mana;15
+Injetor de Nanobôs Médicos;Dispositivo tecnológico de cura avançada;250.00;CONSUMIVEL;2;;Regeneração Celular:ATIVA:Restaura vida por 3 turnos;;;

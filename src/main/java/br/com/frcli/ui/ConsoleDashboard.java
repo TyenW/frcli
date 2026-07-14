@@ -981,6 +981,75 @@ public class ConsoleDashboard {
         }
     }
 
+    private Personagem clonarPersonagem(Personagem original) {
+        if (original == null) return null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+            String json = mapper.writeValueAsString(original);
+            return mapper.readValue(json, Personagem.class);
+        } catch (Exception e) {
+            System.err.println("Erro ao clonar personagem: " + e.getMessage());
+            return original;
+        }
+    }
+
+    private boolean consumirMunicaoQuantidade(Mochila mochila, String nomeItem, int quantidadeNecessaria) {
+        if (mochila == null || mochila.getItens() == null || nomeItem == null || quantidadeNecessaria <= 0) {
+            return false;
+        }
+
+        // Primeiro conta a quantidade total disponível
+        int totalDisponivel = 0;
+        for (Item item : mochila.getItens()) {
+            if (item.getNome().equalsIgnoreCase(nomeItem)) {
+                if (item instanceof ItemConsumivel) {
+                    totalDisponivel += ((ItemConsumivel) item).getQuantidadeCargas();
+                } else {
+                    totalDisponivel += 1;
+                }
+            }
+        }
+
+        if (totalDisponivel < quantidadeNecessaria) {
+            return false;
+        }
+
+        // Agora consome
+        int restanteParaConsumir = quantidadeNecessaria;
+        List<Item> itensParaRemover = new ArrayList<>();
+
+        for (Item item : mochila.getItens()) {
+            if (item.getNome().equalsIgnoreCase(nomeItem)) {
+                if (item instanceof ItemConsumivel) {
+                    ItemConsumivel c = (ItemConsumivel) item;
+                    int cargasDisponiveis = c.getQuantidadeCargas();
+                    if (cargasDisponiveis >= restanteParaConsumir) {
+                        c.setQuantidadeCargas(cargasDisponiveis - restanteParaConsumir);
+                        restanteParaConsumir = 0;
+                        if (c.getQuantidadeCargas() <= 0) {
+                            itensParaRemover.add(c);
+                        }
+                        break;
+                    } else {
+                        restanteParaConsumir -= cargasDisponiveis;
+                        c.setQuantidadeCargas(0);
+                        itensParaRemover.add(c);
+                    }
+                } else {
+                    restanteParaConsumir -= 1;
+                    itensParaRemover.add(item);
+                    if (restanteParaConsumir == 0) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        mochila.getItens().removeAll(itensParaRemover);
+        return true;
+    }
+
     private void simularArena() {
         List<Personagem> personagens = repository.listarTodos();
         carregarMonstros();
@@ -998,7 +1067,7 @@ public class ConsoleDashboard {
         System.out.println("0. Voltar");
         int idxA = InputUtil.readInt("Atacante (ou 0 para Voltar): ", 0, personagens.size());
         if (idxA == 0) return;
-        Personagem atacante = ItemFactory.clonarItem(personagens.get(idxA - 1));
+        Personagem atacante = clonarPersonagem(personagens.get(idxA - 1));
 
         System.out.println("Escolha o DEFENSOR:");
         System.out.println("--- JOGADORES ---");
@@ -1019,7 +1088,7 @@ public class ConsoleDashboard {
         Monstro monstroDefensor = null;
 
         if (idxD <= personagens.size()) {
-            defensor = ItemFactory.clonarItem(personagens.get(idxD - 1));
+            defensor = clonarPersonagem(personagens.get(idxD - 1));
         } else {
             monstroDefensor = monstros.get(idxD - personagens.size() - 1);
             try {
@@ -1152,7 +1221,34 @@ public class ConsoleDashboard {
         int escolha = InputUtil.readInt("Opção: ", 1, 3);
 
         if (escolha == 1) {
-            double danoBase = p.getStatusFinalAtributo("forca") + 15.0;
+            Equipamento arma = p.getEquipamentosEquipados().get(SlotType.MAO_PRINCIPAL);
+            if (arma == null) {
+                arma = p.getEquipamentosEquipados().get(SlotType.DUAS_MAOS);
+            }
+
+            double danoBase;
+            if (arma != null) {
+                String tipoMunicao = arma.getTipoMunicao();
+                int qtdMunicao = arma.getQuantidadeMunicao() != null ? arma.getQuantidadeMunicao() : 0;
+
+                if (tipoMunicao != null && !tipoMunicao.isEmpty() && qtdMunicao > 0) {
+                    boolean temMunicao = consumirMunicaoQuantidade(p.getInventario(), tipoMunicao, qtdMunicao);
+                    if (!temMunicao) {
+                        System.out.printf("❌ Sem munição '%s' (%d unidades) na mochila para usar %s!\n", tipoMunicao, qtdMunicao, arma.getNome());
+                        System.out.println("Você realiza um soco básico desarmado no lugar.");
+                        danoBase = p.getStatusFinalAtributo("forca") + 5.0;
+                        return processarAtaqueSimulado(p.getNome(), defensor, hpDefensor, danoBase, null, r);
+                    }
+                    System.out.printf("🏹 Consumido %dx '%s' da mochila.\n", qtdMunicao, tipoMunicao);
+                }
+
+                danoBase = p.getStatusFinalAtributo("forca") + (arma.getDano() != null ? arma.getDano() : 0.0) + 10.0;
+                System.out.printf("⚔️ Atacando com %s (Dano Arma: %.1f)\n", arma.getNome(), arma.getDano());
+            } else {
+                danoBase = p.getStatusFinalAtributo("forca") + 10.0; // Ataque desarmado
+                System.out.println("👊 Atacando de mãos vazias.");
+            }
+
             return processarAtaqueSimulado(p.getNome(), defensor, hpDefensor, danoBase, null, r);
         } else if (escolha == 2) {
             if (p.getMagias().isEmpty()) {
@@ -1330,15 +1426,23 @@ public class ConsoleDashboard {
             MenuBuilder menu = new MenuBuilder("🛠️ IMPORTAÇÃO & CADASTRO DE ITENS 🛠️");
             menu.addItem(1, "Criar Item e Adicionar ao Catálogo", "Formulário manual")
                 .addItem(2, "Importar Itens em Lote (CSV)", "Ler arquivos da pasta dados/imports")
+                .addItem(3, "Gerenciar Catálogo", "Visualizar, editar ou excluir itens do catálogo")
+                .addItem(4, "Visualizar Todos os Itens (Detalhado)", "Exibir detalhes de todos os itens cadastrados")
                 .addItem(0, "Voltar", "Menu anterior");
 
-            int opcao = menu.getUserChoice(0, 2);
+            int opcao = menu.getUserChoice(0, 4);
             switch (opcao) {
                 case 1:
                     criarItemManualCatalogo();
                     break;
                 case 2:
                     importarLoteCSV();
+                    break;
+                case 3:
+                    gerenciarCatalogoItens();
+                    break;
+                case 4:
+                    visualizarTodosItensDetalhado();
                     break;
                 case 0:
                     return;
@@ -1534,5 +1638,167 @@ public class ConsoleDashboard {
                 m.getModificadores().getNegativos().forEach(mod -> UiFormatter.printBullet(mod));
             }
         }
+    }
+
+    private void gerenciarCatalogoItens() {
+        while (true) {
+            List<Item> catalogo = ItemFactory.listarCatalogo();
+            if (catalogo.isEmpty()) {
+                UiFormatter.printWarning("O catálogo está vazio!");
+                InputUtil.pressEnterToContinue();
+                return;
+            }
+
+            UiFormatter.printSubtitle("GERENCIAR CATÁLOGO DE ITENS 📦");
+            for (int i = 0; i < catalogo.size(); i++) {
+                Item item = catalogo.get(i);
+                String tipo = (item instanceof Equipamento) ? "EQUIPAMENTO" : "CONSUMÍVEL";
+                System.out.printf("%d. %s [%s] - G$ %.2f\n", i + 1, item.getNome(), tipo, item.getValorComercial());
+            }
+            System.out.println("0. Voltar");
+
+            int idx = InputUtil.readInt("Selecione um item (ou 0 para Voltar): ", 0, catalogo.size());
+            if (idx == 0) return;
+
+            Item itemSelecionado = catalogo.get(idx - 1);
+            menuAcoesItem(itemSelecionado);
+        }
+    }
+
+    private void menuAcoesItem(Item item) {
+        while (true) {
+            UiFormatter.printSubtitle("DETALHES DO ITEM: " + item.getNome().toUpperCase());
+            System.out.printf("Nome: %s\n", item.getNome());
+            System.out.printf("Descrição: %s\n", item.getDescricao());
+            System.out.printf("Valor Comercial: %.2f %s\n", item.getValorComercial(), item.getTipoMoeda());
+            
+            if (item instanceof Equipamento) {
+                Equipamento eq = (Equipamento) item;
+                System.out.printf("Tipo: Equipamento (%s)\n", eq.getSlotCompativel());
+                System.out.printf("Dano: %.1f\n", eq.getDano());
+                System.out.printf("Munição/Recurso: %s (Qtd: %d)\n", 
+                    eq.getTipoMunicao() != null ? eq.getTipoMunicao() : "Nenhuma", eq.getQuantidadeMunicao());
+                System.out.printf("Modificadores: %s\n", eq.getModificadoresStatus());
+                if (!eq.getHabilidadesEmbutidas().isEmpty()) {
+                    System.out.println("Habilidades Embutidas:");
+                    for (Habilidade hab : eq.getHabilidadesEmbutidas()) {
+                        System.out.printf("  - %s (%s): %s\n", hab.getNome(), hab.getTipo(), hab.getDescricao());
+                    }
+                }
+            } else if (item instanceof ItemConsumivel) {
+                ItemConsumivel con = (ItemConsumivel) item;
+                System.out.printf("Tipo: Consumível (%d Cargas)\n", con.getQuantidadeCargas());
+            }
+            
+            System.out.println("\nAções:");
+            System.out.println("1. Editar Item");
+            System.out.println("2. Excluir Item do Catálogo");
+            System.out.println("0. Voltar");
+            
+            int escolha = InputUtil.readInt("Opção: ", 0, 2);
+            if (escolha == 0) return;
+            
+            if (escolha == 1) {
+                editarItemCatalogo(item);
+            } else if (escolha == 2) {
+                if (InputUtil.readBoolean("Tem certeza de que deseja deletar este item permanentemente? (s/n): ")) {
+                    ItemFactory.removerDoCatalogo(item.getNome());
+                    UiFormatter.printSuccess("Item excluído do catálogo! 🗑️");
+                    return;
+                }
+            }
+        }
+    }
+
+    private void editarItemCatalogo(Item item) {
+        UiFormatter.printSubtitle("EDITAR ITEM: " + item.getNome().toUpperCase());
+        String nomeAntigo = item.getNome();
+        
+        String novoNome = InputUtil.readString("Novo Nome (deixe em branco para manter '" + item.getNome() + "'): ");
+        if (novoNome != null && !novoNome.trim().isEmpty()) {
+            item.setNome(novoNome.trim());
+        }
+        
+        String novaDesc = InputUtil.readString("Nova Descrição (deixe em branco para manter '" + item.getDescricao() + "'): ");
+        if (novaDesc != null && !novaDesc.trim().isEmpty()) {
+            item.setDescricao(novaDesc.trim());
+        }
+        
+        double novoValor = InputUtil.readDouble("Novo Valor Comercial (ou -1 para manter " + item.getValorComercial() + "): ", -1, Double.MAX_VALUE);
+        if (novoValor >= 0) {
+            item.setValorComercial(novoValor);
+        }
+        
+        if (item instanceof Equipamento) {
+            Equipamento eq = (Equipamento) item;
+            
+            double novoDano = InputUtil.readDouble("Novo Dano da Arma (ou -1 para manter " + eq.getDano() + "): ", -1, Double.MAX_VALUE);
+            if (novoDano >= 0) {
+                eq.setDano(novoDano);
+            }
+            
+            String novaMun = InputUtil.readString("Nova Munição (ou 'nenhuma' para limpar, em branco para manter '" + (eq.getTipoMunicao() != null ? eq.getTipoMunicao() : "") + "'): ");
+            if (novaMun != null && !novaMun.trim().isEmpty()) {
+                if (novaMun.equalsIgnoreCase("nenhuma")) {
+                    eq.setTipoMunicao(null);
+                } else {
+                    eq.setTipoMunicao(novaMun.trim());
+                }
+            }
+            
+            int novaQtdMun = InputUtil.readInt("Nova Quantidade Munição (ou -1 para manter " + eq.getQuantidadeMunicao() + "): ", -1, Integer.MAX_VALUE);
+            if (novaQtdMun >= 0) {
+                eq.setQuantidadeMunicao(novaQtdMun);
+            }
+        } else if (item instanceof ItemConsumivel) {
+            ItemConsumivel con = (ItemConsumivel) item;
+            int novasCargas = InputUtil.readInt("Novas Cargas (ou -1 para manter " + con.getQuantidadeCargas() + "): ", -1, Integer.MAX_VALUE);
+            if (novasCargas >= 0) {
+                con.setQuantidadeCargas(novasCargas);
+            }
+        }
+        
+        ItemFactory.atualizarNoCatalogo(nomeAntigo, item);
+        UiFormatter.printSuccess("Item updated successfully in catalog! 💾");
+    }
+
+    private void visualizarTodosItensDetalhado() {
+        List<Item> catalogo = ItemFactory.listarCatalogo();
+        if (catalogo.isEmpty()) {
+            UiFormatter.printWarning("O catálogo está vazio!");
+            InputUtil.pressEnterToContinue();
+            return;
+        }
+
+        UiFormatter.printTitle("📦 DETALHES DE TODOS OS ITENS NO CATÁLOGO (" + catalogo.size() + ")");
+        for (int i = 0; i < catalogo.size(); i++) {
+            Item item = catalogo.get(i);
+            System.out.printf("\n%d. %s\n", i + 1, UiFormatter.BOLD + item.getNome().toUpperCase() + UiFormatter.RESET);
+            System.out.printf("   Descrição: %s\n", item.getDescricao());
+            System.out.printf("   Valor Comercial: %.2f %s\n", item.getValorComercial(), item.getTipoMoeda());
+            
+            if (item instanceof Equipamento) {
+                Equipamento eq = (Equipamento) item;
+                System.out.printf("   Tipo: Equipamento (%s)\n", eq.getSlotCompativel());
+                System.out.printf("   Dano: %.1f\n", eq.getDano());
+                if (eq.getTipoMunicao() != null && !eq.getTipoMunicao().isEmpty()) {
+                    System.out.printf("   Munição/Recurso: %s (Qtd consumida: %d)\n", eq.getTipoMunicao(), eq.getQuantidadeMunicao());
+                }
+                if (eq.getModificadoresStatus() != null && !eq.getModificadoresStatus().isEmpty()) {
+                    System.out.printf("   Modificadores de Atributos: %s\n", eq.getModificadoresStatus());
+                }
+                if (!eq.getHabilidadesEmbutidas().isEmpty()) {
+                    System.out.println("   Habilidades Embutidas:");
+                    for (Habilidade hab : eq.getHabilidadesEmbutidas()) {
+                        System.out.printf("     - %s (%s): %s\n", hab.getNome(), hab.getTipo(), hab.getDescricao());
+                    }
+                }
+            } else if (item instanceof ItemConsumivel) {
+                ItemConsumivel con = (ItemConsumivel) item;
+                System.out.printf("   Tipo: Consumível (%d Cargas)\n", con.getQuantidadeCargas());
+            }
+            System.out.println("   " + "─".repeat(40));
+        }
+        InputUtil.pressEnterToContinue();
     }
 }

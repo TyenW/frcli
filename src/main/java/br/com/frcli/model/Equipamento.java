@@ -11,6 +11,9 @@ public class Equipamento extends Item {
     private SlotType slotCompativel;
     private Map<String, Double> modificadoresStatus; // e.g., {"Vida": 20.0, "Destreza": -1.0}
     private List<Habilidade> habilidadesEmbutidas;
+    private Double dano = 0.0;
+    private String tipoMunicao;
+    private Integer quantidadeMunicao = 0;
 
     @JsonCreator
     public Equipamento(
@@ -49,5 +52,29 @@ public class Equipamento extends Item {
 
     public void setHabilidadesEmbutidas(List<Habilidade> habilidadesEmbutidas) {
         this.habilidadesEmbutidas = habilidadesEmbutidas;
+    }
+
+    public Double getDano() {
+        return dano;
+    }
+
+    public void setDano(Double dano) {
+        this.dano = dano != null ? dano : 0.0;
+    }
+
+    public String getTipoMunicao() {
+        return tipoMunicao;
+    }
+
+    public void setTipoMunicao(String tipoMunicao) {
+        this.tipoMunicao = tipoMunicao;
+    }
+
+    public Integer getQuantidadeMunicao() {
+        return quantidadeMunicao != null ? quantidadeMunicao : 0;
+    }
+
+    public void setQuantidadeMunicao(Integer quantidadeMunicao) {
+        this.quantidadeMunicao = quantidadeMunicao != null ? quantidadeMunicao : 0;
     }
 }

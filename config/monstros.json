@@ -1,0 +1,47 @@
+[ {
+  "nome" : "Goblin Saqueador",
+  "statusFinal" : {
+    "velocidade" : 14.0,
+    "forca" : 6.0,
+    "vida" : 70.0,
+    "destreza" : 8.0
+  },
+  "tipo" : "Orcoide",
+  "ataquesFixos" : [ "Ataque Furtivo", "Arremesso de Pedra" ],
+  "lootTable" : {
+    "entries" : [ {
+      "probabilidade" : 0.7,
+      "tipo" : "MOEDA",
+      "nomeItem" : "",
+      "valorMoeda" : 15.0
+    }, {
+      "probabilidade" : 0.3,
+      "tipo" : "ITEM",
+      "nomeItem" : "Adaga de Cobre",
+      "valorMoeda" : 0.0
+    } ]
+  }
+}, {
+  "nome" : "Dragão Jovem",
+  "statusFinal" : {
+    "velocidade" : 16.0,
+    "forca" : 28.0,
+    "vida" : 400.0,
+    "destreza" : 10.0
+  },
+  "tipo" : "Réptil Alado",
+  "ataquesFixos" : [ "Sopro de Fogo", "Mordida Feroz" ],
+  "lootTable" : {
+    "entries" : [ {
+      "probabilidade" : 1.0,
+      "tipo" : "MOEDA",
+      "nomeItem" : "",
+      "valorMoeda" : 250.0
+    }, {
+      "probabilidade" : 0.5,
+      "tipo" : "ITEM",
+      "nomeItem" : "Elmo de Ferro",
+      "valorMoeda" : 0.0
+    } ]
+  }
+} ]
