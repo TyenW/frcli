@@ -14,6 +14,7 @@ public class Personagem extends EntidadeRPG {
     private List<Raca> subRacas; // Utilizado caso a raça seja "Híbrido" (máximo 2 raças)
     private Classe classe;
     private List<Magia> magias;
+    private List<Ataque> ataques;
     private int tierCampanha; // Nível/Tier na campanha (ex: 1, 2, 3)
 
     // Gerenciadores Acoplados (Mochila e Equipamentos)
@@ -27,10 +28,12 @@ public class Personagem extends EntidadeRPG {
     private List<String> vantagensEscritas; // Acumulado das descrições de raça, classe, magias
     private List<String> desvantagensEscritas; // Acumulado das descrições negativas
     private Map<String, AtributoContagem> contagemModificadores; // Contagem de + e - por atributo
+    private Map<String, Integer> proficiencias = new HashMap<>();
 
     public Personagem() {
         super();
         this.magias = new ArrayList<>();
+        this.ataques = new ArrayList<>();
         this.subRacas = new ArrayList<>();
         this.equipamentosEquipados = new HashMap<>();
         this.statusBase = new HashMap<>();
@@ -41,6 +44,14 @@ public class Personagem extends EntidadeRPG {
         this.desvantagensEscritas = new ArrayList<>();
         this.contagemModificadores = new HashMap<>();
         this.tierCampanha = 1;
+        
+        this.proficiencias = new HashMap<>();
+        this.proficiencias.put("cronomacia", 0);
+        this.proficiencias.put("abstractomacia", 0);
+        this.proficiencias.put("necromacia", 0);
+        this.proficiencias.put("espectromacia", 0);
+        this.proficiencias.put("armas de longa distancia", 0);
+        this.proficiencias.put("armas de curta distancia", 0);
         
         // Inicializa slots vazios
         this.equipamentosEquipados.put(SlotType.CABECA, null);
@@ -200,5 +211,28 @@ public class Personagem extends EntidadeRPG {
     @JsonIgnore
     public double getStatusFinalAtributo(String atributo) {
         return statusFinal.getOrDefault(atributo.toLowerCase(), 0.0);
+    }
+
+    public Map<String, Integer> getProficiencias() {
+        if (proficiencias == null) {
+            proficiencias = new HashMap<>();
+        }
+        proficiencias.entrySet().removeIf(entry -> entry.getValue() == null || entry.getValue() <= 0);
+        return proficiencias;
+    }
+
+    public void setProficiencias(Map<String, Integer> proficiencias) {
+        this.proficiencias = proficiencias != null ? proficiencias : new HashMap<>();
+    }
+
+    public List<Ataque> getAtaques() {
+        if (ataques == null) {
+            ataques = new ArrayList<>();
+        }
+        return ataques;
+    }
+
+    public void setAtaques(List<Ataque> ataques) {
+        this.ataques = ataques != null ? ataques : new ArrayList<>();
     }
 }

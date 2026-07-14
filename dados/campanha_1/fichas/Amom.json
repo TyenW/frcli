@@ -1,5 +1,16 @@
 {
   "nome" : "Amom",
+  "statusFinal" : {
+    "velocidade" : 3.0,
+    "carisma" : -1.5,
+    "inteligencia" : 0.0,
+    "forca" : 0.0,
+    "vida" : 85.0,
+    "confianca" : -1.0,
+    "destreza" : 2.0,
+    "intelectualidade" : 4.0,
+    "cura" : 0.0
+  },
   "historia" : "amom.md",
   "idade" : 18,
   "tamanho" : 194.0,
@@ -17,6 +28,15 @@
   "subRacas" : [ ],
   "classe" : null,
   "magias" : [ ],
+  "ataques" : [ {
+    "nome" : "Espada Espectral",
+    "descricao" : "Evoca uma espada seladora de Almas.",
+    "tipoMagiaOuArma" : "Necromacia",
+    "dano" : "dsabedoria",
+    "requisitosEvolucao" : [ ],
+    "evolucoes" : [ ],
+    "nivel" : 1
+  } ],
   "tierCampanha" : 1,
   "inventario" : {
     "tipo" : "GRANDE",
@@ -39,18 +59,8 @@
     "destreza" : 0.0,
     "intelectualidade" : 0.0
   },
-  "statusFinal" : {
-    "velocidade" : 3.0,
-    "carisma" : -1.5,
-    "inteligencia" : 0.0,
-    "forca" : 0.0,
-    "vida" : 85.0,
-    "confianca" : -1.0,
-    "destreza" : 2.0,
-    "intelectualidade" : 4.0,
-    "cura" : 0.0
-  },
   "buffsAtivos" : { },
+  "efeitosTemporarios" : [ ],
   "vantagensEscritas" : [ "possuem um tom de confiança na fala" ],
   "desvantagensEscritas" : [ "dificuldade em aprender magias necromantes e cronomantes" ],
   "contagemModificadores" : {
@@ -78,5 +88,8 @@
       "positivos" : 0,
       "negativos" : 1
     }
+  },
+  "proficiencias" : {
+    "necromacia" : 1
   }
 }

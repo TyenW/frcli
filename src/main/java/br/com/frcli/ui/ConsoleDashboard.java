@@ -30,13 +30,14 @@ public class ConsoleDashboard {
             MenuBuilder menu = new MenuBuilder("🎲 PAINEL DE GERENCIAMENTO RPG 🎲");
             menu.addItem(1, "Gerenciar Fichas", "Personagens")
                 .addItem(2, "Inventário e Equipamentos", "Mochila & Armadura")
-                .addItem(3, "Magias e Combate", "Arena de Duelo")
+                .addItem(3, "Magias e Conhecimento", "Gerenciar magias do personagem")
                 .addItem(4, "Tabelas Globais", "Raças, Classes, Magias")
                 .addItem(5, "Mercado & Lojinha", "Comprar e vender itens")
                 .addItem(6, "Importação e Criação de Itens", "Importar CSV ou criar item catalogo")
+                .addItem(7, "Gerenciar Catálogo de Ataques", "CRUD e Evoluções de Ataques")
                 .addItem(0, "Sair", "Encerrar jogo");
 
-            int opcao = menu.getUserChoice(0, 6);
+            int opcao = menu.getUserChoice(0, 7);
 
             switch (opcao) {
                 case 1:
@@ -56,6 +57,9 @@ public class ConsoleDashboard {
                     break;
                 case 6:
                     menuImportacaoItens();
+                    break;
+                case 7:
+                    menuAtaques();
                     break;
                 case 0:
                     UiFormatter.printBlank();
@@ -370,6 +374,37 @@ public class ConsoleDashboard {
             habs.forEach(h -> UiFormatter.printBullet(h.toString()));
         }
         UiFormatter.endSection();
+
+        // Proficiências de Magias e Armas
+        UiFormatter.printSection("PROFICIÊNCIAS DE MAGIA & ARMAS");
+        Map<String, Integer> profs = p.getProficiencias();
+        boolean temProfs = false;
+        for (Map.Entry<String, Integer> entry : profs.entrySet()) {
+            if (entry.getValue() > 0) {
+                String chave = entry.getKey();
+                String cap = chave.substring(0, 1).toUpperCase() + chave.substring(1);
+                System.out.printf("  • %-25s: Nível %d / 10\n", cap, entry.getValue());
+                temProfs = true;
+            }
+        }
+        if (!temProfs) {
+            System.out.println("  Nenhuma proficiência adquirida (todas nível 0).");
+        }
+        UiFormatter.endSection();
+
+        // Ataques Vinculados
+        UiFormatter.printSection("ATAQUES VINCULADOS À FICHA");
+        if (p.getAtaques().isEmpty()) {
+            System.out.println("  Nenhum ataque atribuído.");
+        } else {
+            for (Ataque a : p.getAtaques()) {
+                System.out.printf("  • %s [%s] (Dano: %s) [Nível: %d]\n", a.getNome(), a.getTipoMagiaOuArma(), a.getDano(), a.getNivel());
+                if (a.getDescricao() != null && !a.getDescricao().isEmpty()) {
+                    System.out.printf("    Descrição: %s\n", a.getDescricao());
+                }
+            }
+        }
+        UiFormatter.endSection();
         
         System.out.println();
     }
@@ -385,9 +420,11 @@ public class ConsoleDashboard {
         System.out.println("4. Limpar Buffs/Debuffs");
         System.out.println("5. Editar Vantagens Escritas");
         System.out.println("6. Editar Desvantagens Escritas");
+        System.out.println("7. Alterar Níveis de Proficiência (0-10)");
+        System.out.println("8. Gerenciar Ataques do Personagem");
         System.out.println("0. Voltar");
 
-        int opcao = InputUtil.readInt("Opção: ", 0, 6);
+        int opcao = InputUtil.readInt("Opção: ", 0, 8);
 
         switch (opcao) {
             case 1:
@@ -423,6 +460,12 @@ public class ConsoleDashboard {
             case 6:
                 editarVantagensDesvantagens(p, false);
                 return;
+            case 7:
+                alterarProficienciasPersonagem(p);
+                break;
+            case 8:
+                gerenciarAtaquesPersonagem(p);
+                break;
             case 0:
                 return;
         }
@@ -430,6 +473,143 @@ public class ConsoleDashboard {
         StatusManager.recalcularStatus(p);
         repository.salvar(p);
         System.out.println("Alterações aplicadas e salvas com sucesso!");
+    }
+
+    private void alterarProficienciasPersonagem(Personagem p) {
+        while (true) {
+            UiFormatter.printSubtitle("PROFICIÊNCIAS DE " + p.getNome().toUpperCase());
+            Map<String, Integer> profs = p.getProficiencias();
+            List<String> chavesAtivas = new ArrayList<>(profs.keySet());
+            
+            System.out.println("Proficiências Ativas:");
+            if (chavesAtivas.isEmpty()) {
+                System.out.println("  (Nenhuma proficiência ativa)");
+            } else {
+                for (int i = 0; i < chavesAtivas.size(); i++) {
+                    String chave = chavesAtivas.get(i);
+                    String cap = chave.substring(0, 1).toUpperCase() + chave.substring(1);
+                    System.out.printf("  %d. %s: Nível %d\n", i + 1, cap, profs.get(chave));
+                }
+            }
+            
+            System.out.println("\nOpções:");
+            System.out.println("1. Adicionar Nova Proficiência");
+            System.out.println("2. Alterar Nível de uma Proficiência Ativa");
+            System.out.println("0. Voltar");
+            
+            int opt = InputUtil.readInt("Opção: ", 0, 2);
+            if (opt == 0) return;
+            
+            if (opt == 1) {
+                List<String> disponiveis = new ArrayList<>();
+                for (Magia m : magias) {
+                    disponiveis.add(m.getNome());
+                }
+                disponiveis.add("Armas de longa distância");
+                disponiveis.add("Armas de curta distância");
+                
+                // Filtra as já existentes na ficha (compara case-insensitive)
+                disponiveis.removeIf(nome -> profs.containsKey(nome.toLowerCase()));
+                
+                if (disponiveis.isEmpty()) {
+                    System.out.println("O personagem já possui todas as proficiências possíveis!");
+                    InputUtil.pressEnterToContinue();
+                    continue;
+                }
+                
+                System.out.println("\n--- SELECIONE A PROFICIÊNCIA PARA ADICIONAR ---");
+                for (int i = 0; i < disponiveis.size(); i++) {
+                    System.out.printf("%d. %s\n", i + 1, disponiveis.get(i));
+                }
+                System.out.println("0. Voltar");
+                
+                int sel = InputUtil.readInt("Opção: ", 0, disponiveis.size());
+                if (sel == 0) continue;
+                
+                String novaProf = disponiveis.get(sel - 1);
+                int nivel = InputUtil.readInt("Nível da Proficiência (1 a 10): ", 1, 10);
+                profs.put(novaProf.toLowerCase(), nivel);
+                UiFormatter.printSuccess("Proficiência '" + novaProf + "' adicionada com Nível " + nivel + "!");
+            } else if (opt == 2) {
+                if (chavesAtivas.isEmpty()) {
+                    System.out.println("Nenhuma proficiência para alterar.");
+                    continue;
+                }
+                int idx = InputUtil.readInt("Selecione a proficiência: ", 1, chavesAtivas.size());
+                String chaveSelecionada = chavesAtivas.get(idx - 1);
+                int novoNivel = InputUtil.readInt("Novo nível (0 a 10, use 0 para remover): ", 0, 10);
+                
+                if (novoNivel <= 0) {
+                    profs.remove(chaveSelecionada);
+                    UiFormatter.printSuccess("Proficiência '" + (chaveSelecionada.substring(0, 1).toUpperCase() + chaveSelecionada.substring(1)) + "' removida!");
+                } else {
+                    profs.put(chaveSelecionada, novoNivel);
+                    UiFormatter.printSuccess("Proficiência '" + (chaveSelecionada.substring(0, 1).toUpperCase() + chaveSelecionada.substring(1)) + "' alterada para Nível " + novoNivel + "!");
+                }
+            }
+        }
+    }
+
+    private void gerenciarAtaquesPersonagem(Personagem p) {
+        while (true) {
+            UiFormatter.printSubtitle("ATAQUES DE " + p.getNome().toUpperCase());
+            List<Ataque> atqs = p.getAtaques();
+            if (atqs.isEmpty()) {
+                System.out.println("(Nenhum ataque atribuído)");
+            } else {
+                for (int i = 0; i < atqs.size(); i++) {
+                    Ataque a = atqs.get(i);
+                    System.out.printf("%d. %s [%s] (Dano: %s)\n", i + 1, a.getNome(), a.getTipoMagiaOuArma(), a.getDano());
+                }
+            }
+            
+            System.out.println("\nOpções:");
+            System.out.println("1. Adicionar Ataque do Catálogo");
+            System.out.println("2. Remover Ataque do Personagem");
+            System.out.println("0. Voltar");
+            
+            int escolha = InputUtil.readInt("Opção: ", 0, 2);
+            if (escolha == 0) return;
+            
+            if (escolha == 1) {
+                List<Ataque> catalogo = AtaqueFactory.listarCatalogo();
+                if (catalogo.isEmpty()) {
+                    System.out.println("Não existem ataques cadastrados no catálogo!");
+                    InputUtil.pressEnterToContinue();
+                    continue;
+                }
+                
+                System.out.println("\n--- ATAQUES DISPONÍVEIS NO CATÁLOGO ---");
+                for (int i = 0; i < catalogo.size(); i++) {
+                    System.out.printf("%d. %s [%s]\n", i + 1, catalogo.get(i).getNome(), catalogo.get(i).getTipoMagiaOuArma());
+                }
+                int idx = InputUtil.readInt("Escolha o ataque para adicionar: ", 1, catalogo.size());
+                Ataque selecionado = catalogo.get(idx - 1);
+                
+                boolean jaTem = false;
+                for (Ataque a : atqs) {
+                    if (a.getNome().equalsIgnoreCase(selecionado.getNome())) {
+                        jaTem = true;
+                        break;
+                    }
+                }
+                
+                if (jaTem) {
+                    UiFormatter.printWarning("O personagem já possui este ataque!");
+                } else {
+                    atqs.add(AtaqueFactory.clonarAtaque(selecionado));
+                    UiFormatter.printSuccess("Ataque '" + selecionado.getNome() + "' adicionado!");
+                }
+            } else if (escolha == 2) {
+                if (atqs.isEmpty()) {
+                    System.out.println("O personagem não tem ataques para remover.");
+                    continue;
+                }
+                int idx = InputUtil.readInt("Escolha o ataque para remover: ", 1, atqs.size());
+                Ataque removido = atqs.remove(idx - 1);
+                UiFormatter.printSuccess("Ataque '" + removido.getNome() + "' removido!");
+            }
+        }
     }
 
     private void editarVantagensDesvantagens(Personagem p, boolean isVantagem) {
@@ -852,13 +1032,12 @@ public class ConsoleDashboard {
     // ==========================================
     private void menuMagiasCombate() {
         while (true) {
-            MenuBuilder menu = new MenuBuilder("✨ MAGIAS, RESISTÊNCIAS E ARENA ✨");
+            MenuBuilder menu = new MenuBuilder("✨ MAGIAS E CONHECIMENTO ✨");
             menu.addItem(1, "Ensinar Magia", "Aprender novo poder")
                 .addItem(2, "Esquecer Magia", "Desaprender poder")
-                .addItem(3, "Simular Duelo", "Combate na Arena")
                 .addItem(0, "Voltar", "Menu anterior");
 
-            int opcao = menu.getUserChoice(0, 3);
+            int opcao = menu.getUserChoice(0, 2);
 
             switch (opcao) {
                 case 1:
@@ -866,9 +1045,6 @@ public class ConsoleDashboard {
                     break;
                 case 2:
                     esquecerMagia();
-                    break;
-                case 3:
-                    simularArena();
                     break;
                 case 0:
                     return;
@@ -1800,5 +1976,301 @@ public class ConsoleDashboard {
             System.out.println("   " + "─".repeat(40));
         }
         InputUtil.pressEnterToContinue();
+    }
+
+    private void menuAtaques() {
+        while (true) {
+            MenuBuilder menu = new MenuBuilder("⚔️ GERENCIAR CATÁLOGO DE ATAQUES ⚔️");
+            menu.addItem(1, "Criar Ataque Base", "Cadastrar novo ataque/habilidade inicial")
+                .addItem(2, "Ver Todos os Ataques (Detalhado)", "Lista de ataques e suas árvores de evoluções")
+                .addItem(3, "Gerenciar/Editar Ataques", "Editar, deletar ou associar evoluções")
+                .addItem(0, "Voltar", "Menu anterior");
+
+            int opcao = menu.getUserChoice(0, 3);
+            switch (opcao) {
+                case 1:
+                    criarNovoAtaque();
+                    break;
+                case 2:
+                    visualizarTodosAtaquesDetalhado();
+                    break;
+                case 3:
+                    gerenciarAtaquesCrud();
+                    break;
+                case 0:
+                    return;
+            }
+        }
+    }
+
+    private Ataque criarCamposAtaqueSemEvolucoes() {
+        String nome = InputUtil.readStringNotEmpty("Nome do Ataque: ");
+        String descricao = InputUtil.readString("Descrição: ");
+        
+        System.out.println("Tipo (Magia ou Estilo de Arma):");
+        System.out.println("1. Cronomacia");
+        System.out.println("2. Abstractomacia");
+        System.out.println("3. Necromacia");
+        System.out.println("4. Espectromacia");
+        System.out.println("5. Armas de curta distância");
+        System.out.println("6. Armas de longa distância");
+        System.out.println("7. Outro (digitar personalizado)");
+        int tOpt = InputUtil.readInt("Opção: ", 1, 7);
+        String tipo = "";
+        if (tOpt == 1) tipo = "Cronomacia";
+        else if (tOpt == 2) tipo = "Abstractomacia";
+        else if (tOpt == 3) tipo = "Necromacia";
+        else if (tOpt == 4) tipo = "Espectromacia";
+        else if (tOpt == 5) tipo = "Armas de curta distância";
+        else if (tOpt == 6) tipo = "Armas de longa distância";
+        else tipo = InputUtil.readStringNotEmpty("Digite o tipo: ");
+        
+        String dano = InputUtil.readStringNotEmpty("Dano (ex: 20d100, 3dforca, forcaD10): ");
+        int nivel = InputUtil.readInt("Nível da Magia/Ataque (1 a 10): ", 1, 10);
+        return new Ataque(nome, descricao, tipo, dano, new ArrayList<>(), new ArrayList<>(), nivel);
+    }
+
+    private void criarNovoAtaque() {
+        UiFormatter.printSubtitle("CADASTRAR NOVO ATAQUE BASE");
+        Ataque a = criarCamposAtaqueSemEvolucoes();
+        if (InputUtil.readBoolean("Deseja cadastrar evoluções para este ataque agora? (s/n): ")) {
+            adicionarEvolucoesAoAtaque(a);
+        }
+        AtaqueFactory.adicionarAoCatalogo(a);
+        UiFormatter.printSuccess("Ataque '" + a.getNome() + "' cadastrado com sucesso no catálogo! ⚔️");
+    }
+
+    private void adicionarEvolucoesAoAtaque(Ataque ataqueBase) {
+        while (true) {
+            System.out.printf("\n--- Cadastrando evolução para o ataque '%s' ---\n", ataqueBase.getNome());
+            System.out.println("1. Criar novo ataque e adicionar como evolução");
+            System.out.println("2. Associar ataque já existente no catálogo como evolução");
+            System.out.println("0. Finalizar cadastro de evoluções");
+            int escolha = InputUtil.readInt("Opção: ", 0, 2);
+            if (escolha == 0) break;
+            
+            Ataque evolucao = null;
+            if (escolha == 1) {
+                evolucao = criarCamposAtaqueSemEvolucoes();
+            } else if (escolha == 2) {
+                List<Ataque> catalogo = AtaqueFactory.listarCatalogo();
+                if (catalogo.isEmpty()) {
+                    System.out.println("O catálogo de ataques está vazio para associar!");
+                    continue;
+                }
+                System.out.println("\nSelecione o ataque para associar:");
+                for (int i = 0; i < catalogo.size(); i++) {
+                    System.out.printf("%d. %s\n", i + 1, catalogo.get(i).getNome());
+                }
+                int idx = InputUtil.readInt("Opção: ", 1, catalogo.size());
+                evolucao = AtaqueFactory.clonarAtaque(catalogo.get(idx - 1));
+            }
+            
+            if (evolucao != null) {
+                cadastrarRequisitosEvolucao(evolucao);
+                ataqueBase.getEvolucoes().add(evolucao);
+                System.out.printf("✅ Evolução '%s' adicionada a '%s'!\n", evolucao.getNome(), ataqueBase.getNome());
+                
+                if (InputUtil.readBoolean("Deseja cadastrar evoluções recursivas para esta evolução '" + evolucao.getNome() + "'? (s/n): ")) {
+                    adicionarEvolucoesAoAtaque(evolucao);
+                }
+            }
+        }
+    }
+
+    private void cadastrarRequisitosEvolucao(Ataque ataque) {
+        System.out.printf("\n--- Cadastrar requisitos de evolução para '%s' ---\n", ataque.getNome());
+        while (true) {
+            System.out.println("1. Adicionar requisito de Proficiência (1-10)");
+            System.out.println("2. Adicionar requisito de Ataque Prévio");
+            System.out.println("3. Adicionar requisito de Tier");
+            System.out.println("0. Finalizar requisitos");
+            int opt = InputUtil.readInt("Opção: ", 0, 3);
+            if (opt == 0) break;
+            
+            if (opt == 1) {
+                System.out.println("Selecione a categoria:");
+                System.out.println("1. Cronomacia");
+                System.out.println("2. Abstractomacia");
+                System.out.println("3. Necromacia");
+                System.out.println("4. Espectromacia");
+                System.out.println("5. Armas de curta distância");
+                System.out.println("6. Armas de longa distância");
+                System.out.println("7. Personalizada");
+                int c = InputUtil.readInt("Opção: ", 1, 7);
+                String cat = "";
+                if (c == 1) cat = "Cronomacia";
+                else if (c == 2) cat = "Abstractomacia";
+                else if (c == 3) cat = "Necromacia";
+                else if (c == 4) cat = "Espectromacia";
+                else if (c == 5) cat = "Armas de curta distância";
+                else if (c == 6) cat = "Armas de longa distância";
+                else cat = InputUtil.readStringNotEmpty("Categoria: ");
+                
+                int nivel = InputUtil.readInt("Nível necessário (1 a 10): ", 1, 10);
+                ataque.getRequisitosEvolucao().add(new RequisitoEvolucao("PROFICIENCIA", cat, nivel));
+                System.out.println("Requisito de proficiência adicionado!");
+            } else if (opt == 2) {
+                String nomeAtq = InputUtil.readStringNotEmpty("Nome do ataque prévio necessário: ");
+                ataque.getRequisitosEvolucao().add(new RequisitoEvolucao("ATAQUE_PREVIO", nomeAtq, 1));
+                System.out.println("Requisito de ataque prévio adicionado!");
+            } else if (opt == 3) {
+                int tier = InputUtil.readInt("Tier necessário (1 a 10): ", 1, 10);
+                ataque.getRequisitosEvolucao().add(new RequisitoEvolucao("TIER", "Tier", tier));
+                System.out.println("Requisito de tier adicionado!");
+            }
+        }
+    }
+
+    private void visualizarTodosAtaquesDetalhado() {
+        List<Ataque> catalogo = AtaqueFactory.listarCatalogo();
+        if (catalogo.isEmpty()) {
+            UiFormatter.printWarning("O catálogo de ataques está vazio!");
+            InputUtil.pressEnterToContinue();
+            return;
+        }
+
+        UiFormatter.printTitle("⚔️ ÁRVORE DE EVOLUÇÕES DE ATAQUES (" + catalogo.size() + ")");
+        for (int i = 0; i < catalogo.size(); i++) {
+            Ataque a = catalogo.get(i);
+            System.out.printf("\n%d. %s [%s] (Dano: %s) [Nível: %d]\n", i + 1, UiFormatter.BOLD + a.getNome().toUpperCase() + UiFormatter.RESET, a.getTipoMagiaOuArma(), a.getDano(), a.getNivel());
+            System.out.printf("   Descrição: %s\n", a.getDescricao());
+            if (!a.getEvolucoes().isEmpty()) {
+                System.out.println("   Evoluções:");
+                for (Ataque sub : a.getEvolucoes()) {
+                    exibirArvoreEvolucoes(sub, 2);
+                }
+            } else {
+                System.out.println("   Sem evoluções cadastradas.");
+            }
+            System.out.println("   " + "─".repeat(40));
+        }
+        InputUtil.pressEnterToContinue();
+    }
+
+    private void exibirArvoreEvolucoes(Ataque a, int nivel) {
+        String indent = "  ".repeat(nivel);
+        System.out.printf("%s└─ %s (Dano: %s) [%s] (Nível: %d)\n", indent, UiFormatter.BOLD + a.getNome() + UiFormatter.RESET, a.getDano(), a.getTipoMagiaOuArma(), a.getNivel());
+        if (a.getDescricao() != null && !a.getDescricao().isEmpty()) {
+            System.out.printf("%s   Descrição: %s\n", indent, a.getDescricao());
+        }
+        if (!a.getRequisitosEvolucao().isEmpty()) {
+            System.out.printf("%s   Requisitos:\n", indent);
+            for (RequisitoEvolucao req : a.getRequisitosEvolucao()) {
+                System.out.printf("%s     - %s\n", indent, req);
+            }
+        }
+        for (Ataque sub : a.getEvolucoes()) {
+            exibirArvoreEvolucoes(sub, nivel + 1);
+        }
+    }
+
+    private void gerenciarAtaquesCrud() {
+        while (true) {
+            List<Ataque> catalogo = AtaqueFactory.listarCatalogo();
+            if (catalogo.isEmpty()) {
+                UiFormatter.printWarning("O catálogo de ataques está vazio!");
+                InputUtil.pressEnterToContinue();
+                return;
+            }
+
+            UiFormatter.printSubtitle("GERENCIAR CATÁLOGO DE ATAQUES ⚔️");
+            for (int i = 0; i < catalogo.size(); i++) {
+                Ataque a = catalogo.get(i);
+                System.out.printf("%d. %s [%s] (Dano: %s) [Nível: %d]\n", i + 1, a.getNome(), a.getTipoMagiaOuArma(), a.getDano(), a.getNivel());
+            }
+            System.out.println("0. Voltar");
+
+            int idx = InputUtil.readInt("Selecione um ataque (ou 0 para Voltar): ", 0, catalogo.size());
+            if (idx == 0) return;
+
+            Ataque ataqueSelecionado = catalogo.get(idx - 1);
+            menuAcoesAtaque(ataqueSelecionado);
+        }
+    }
+
+    private void menuAcoesAtaque(Ataque a) {
+        while (true) {
+            UiFormatter.printSubtitle("AÇÕES PARA O ATAQUE: " + a.getNome().toUpperCase());
+            System.out.printf("Nome: %s\n", a.getNome());
+            System.out.printf("Descrição: %s\n", a.getDescricao());
+            System.out.printf("Tipo: %s\n", a.getTipoMagiaOuArma());
+            System.out.printf("Dano: %s\n", a.getDano());
+            System.out.printf("Nível: %d\n", a.getNivel());
+            System.out.printf("Evoluções cadastradas: %d\n", a.getEvolucoes().size());
+
+            System.out.println("\nOpções:");
+            System.out.println("1. Editar Dados do Ataque");
+            System.out.println("2. Adicionar/Gerenciar Evoluções deste Ataque");
+            System.out.println("3. Deletar Ataque do Catálogo");
+            System.out.println("0. Voltar");
+
+            int escolha = InputUtil.readInt("Opção: ", 0, 3);
+            if (escolha == 0) return;
+
+            if (escolha == 1) {
+                editarDadosAtaque(a);
+            } else if (escolha == 2) {
+                adicionarEvolucoesAoAtaque(a);
+                AtaqueFactory.atualizarNoCatalogo(a.getNome(), a);
+            } else if (escolha == 3) {
+                if (InputUtil.readBoolean("Deseja realmente excluir o ataque '" + a.getNome() + "' permanentemente? (s/n): ")) {
+                    AtaqueFactory.removerDoCatalogo(a.getNome());
+                    UiFormatter.printSuccess("Ataque removido com sucesso!");
+                    return;
+                }
+            }
+        }
+    }
+
+    private void editarDadosAtaque(Ataque a) {
+        UiFormatter.printSubtitle("EDITAR ATAQUE: " + a.getNome().toUpperCase());
+        String nomeAntigo = a.getNome();
+
+        String novoNome = InputUtil.readString("Novo Nome (em branco para manter '" + a.getNome() + "'): ");
+        if (novoNome != null && !novoNome.trim().isEmpty()) {
+            a.setNome(novoNome.trim());
+        }
+
+        String novaDesc = InputUtil.readString("Nova Descrição (em branco para manter '" + a.getDescricao() + "'): ");
+        if (novaDesc != null && !novaDesc.trim().isEmpty()) {
+            a.setDescricao(novaDesc.trim());
+        }
+
+        String novoDano = InputUtil.readString("Novo Dano (em branco para manter '" + a.getDano() + "'): ");
+        if (novoDano != null && !novoDano.trim().isEmpty()) {
+            a.setDano(novoDano.trim());
+        }
+
+        int novoNivel = InputUtil.readInt("Novo Nível (ou -1 para manter " + a.getNivel() + "): ", -1, 10);
+        if (novoNivel >= 1) {
+            a.setNivel(novoNivel);
+        }
+
+        System.out.println("Deseja alterar o Tipo/Magia? (s/n)");
+        if (InputUtil.readBoolean("Opção: ")) {
+            System.out.println("Selecione o Tipo:");
+            System.out.println("1. Cronomacia");
+            System.out.println("2. Abstractomacia");
+            System.out.println("3. Necromacia");
+            System.out.println("4. Espectromacia");
+            System.out.println("5. Armas de curta distância");
+            System.out.println("6. Armas de longa distância");
+            System.out.println("7. Outro");
+            int c = InputUtil.readInt("Opção: ", 1, 7);
+            if (c == 1) a.setTipoMagiaOuArma("Cronomacia");
+            else if (c == 2) a.setTipoMagiaOuArma("Abstractomacia");
+            else if (c == 3) a.setTipoMagiaOuArma("Necromacia");
+            else if (c == 4) a.setTipoMagiaOuArma("Espectromacia");
+            else if (c == 5) a.setTipoMagiaOuArma("Armas de curta distância");
+            else if (c == 6) a.setTipoMagiaOuArma("Armas de longa distância");
+            else {
+                String cust = InputUtil.readStringNotEmpty("Tipo: ");
+                a.setTipoMagiaOuArma(cust);
+            }
+        }
+
+        AtaqueFactory.atualizarNoCatalogo(nomeAntigo, a);
+        UiFormatter.printSuccess("Ataque atualizado com sucesso! 💾");
     }
 }
