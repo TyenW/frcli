@@ -1,0 +1,13 @@
+[ {
+  "nome" : "Cidade Central",
+  "regiao" : "Centro",
+  "indiceRiqueza" : 1.0
+}, {
+  "nome" : "Vila da Pobreza",
+  "regiao" : "Fronteira",
+  "indiceRiqueza" : 0.6
+}, {
+  "nome" : "Porto Rico",
+  "regiao" : "Litoral",
+  "indiceRiqueza" : 1.4
+} ]

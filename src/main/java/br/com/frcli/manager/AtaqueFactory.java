@@ -96,4 +96,42 @@ public class AtaqueFactory {
             throw new RuntimeException("Erro ao clonar ataque: " + e.getMessage(), e);
         }
     }
+
+    public static int importarCSV(File csvFile) throws IOException {
+        int count = 0;
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(csvFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
+
+                String[] parts = line.split(";");
+                if (parts.length < 5) continue;
+
+                String nome = parts[0].trim();
+                String descricao = parts[1].trim();
+                String tipo = parts[2].trim();
+                String dano = parts[3].trim();
+                int nivel;
+                try {
+                    nivel = Integer.parseInt(parts[4].trim());
+                } catch (NumberFormatException e) {
+                    nivel = 1;
+                }
+
+                if (ataqueCatalog.containsKey(nome.toLowerCase())) {
+                    System.out.printf("⚠️ Ignorando ataque '%s': já existe no catálogo.\n", nome);
+                    continue;
+                }
+
+                Ataque a = new Ataque(nome, descricao, tipo, dano, new ArrayList<>(), new ArrayList<>(), nivel);
+                ataqueCatalog.put(nome.toLowerCase(), a);
+                count++;
+            }
+        }
+        if (count > 0) {
+            salvarCatalogo();
+        }
+        return count;
+    }
 }

@@ -15,7 +15,9 @@ public class Personagem extends EntidadeRPG {
     private Classe classe;
     private List<Magia> magias;
     private List<Ataque> ataques;
+    private List<Passiva> passivas;
     private int tierCampanha; // Nível/Tier na campanha (ex: 1, 2, 3)
+    private String cidade = "Cidade Central";
 
     // Gerenciadores Acoplados (Mochila e Equipamentos)
     private Mochila inventario;
@@ -34,6 +36,7 @@ public class Personagem extends EntidadeRPG {
         super();
         this.magias = new ArrayList<>();
         this.ataques = new ArrayList<>();
+        this.passivas = new ArrayList<>();
         this.subRacas = new ArrayList<>();
         this.equipamentosEquipados = new HashMap<>();
         this.statusBase = new HashMap<>();
@@ -234,5 +237,27 @@ public class Personagem extends EntidadeRPG {
 
     public void setAtaques(List<Ataque> ataques) {
         this.ataques = ataques != null ? ataques : new ArrayList<>();
+    }
+
+    public List<Passiva> getPassivas() {
+        if (passivas == null) {
+            passivas = new ArrayList<>();
+        }
+        return passivas;
+    }
+
+    public void setPassivas(List<Passiva> passivas) {
+        this.passivas = passivas != null ? passivas : new ArrayList<>();
+    }
+
+    public String getCidade() {
+        if (cidade == null || cidade.trim().isEmpty()) {
+            cidade = "Cidade Central";
+        }
+        return cidade;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade != null ? cidade : "Cidade Central";
     }
 }

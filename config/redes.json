@@ -1,0 +1,5 @@
+[ {
+  "id" : "rede_mercado",
+  "nomeRede" : "Mercadão Imperial",
+  "sedeIds" : [ "sede_central" ]
+} ]

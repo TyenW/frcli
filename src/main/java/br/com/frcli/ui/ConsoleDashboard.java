@@ -32,7 +32,7 @@ public class ConsoleDashboard {
                 .addItem(2, "Inventário e Equipamentos", "Mochila & Armadura")
                 .addItem(3, "Magias e Conhecimento", "Gerenciar magias do personagem")
                 .addItem(4, "Tabelas Globais", "Raças, Classes, Magias")
-                .addItem(5, "Mercado & Lojinha", "Comprar e vender itens")
+                .addItem(5, "Comércio e Lojas 🏪", "Cidades, Redes e Lojas")
                 .addItem(6, "Importação e Criação de Itens", "Importar CSV ou criar item catalogo")
                 .addItem(7, "Gerenciar Catálogo de Ataques", "CRUD e Evoluções de Ataques")
                 .addItem(0, "Sair", "Encerrar jogo");
@@ -53,7 +53,7 @@ public class ConsoleDashboard {
                     menuConfiguracoes();
                     break;
                 case 5:
-                    menuMercado();
+                    menuComercioLojas();
                     break;
                 case 6:
                     menuImportacaoItens();
@@ -405,6 +405,21 @@ public class ConsoleDashboard {
             }
         }
         UiFormatter.endSection();
+
+        // Passivas Vinculadas
+        UiFormatter.printSection("PASSIVAS VINCULADAS À FICHA");
+        if (p.getPassivas().isEmpty()) {
+            System.out.println("  Nenhuma passiva atribuída.");
+        } else {
+            for (Passiva pass : p.getPassivas()) {
+                System.out.printf("  • %s [%s] - Condição: %s | Efeito: %s\n", 
+                    pass.getNome(), pass.getTipoMagiaOuArma(), pass.getCondicao(), pass.getEfeito());
+                if (pass.getDescricao() != null && !pass.getDescricao().isEmpty()) {
+                    System.out.printf("    Descrição: %s\n", pass.getDescricao());
+                }
+            }
+        }
+        UiFormatter.endSection();
         
         System.out.println();
     }
@@ -422,9 +437,11 @@ public class ConsoleDashboard {
         System.out.println("6. Editar Desvantagens Escritas");
         System.out.println("7. Alterar Níveis de Proficiência (0-10)");
         System.out.println("8. Gerenciar Ataques do Personagem");
+        System.out.println("9. Mudar Cidade Atual do Personagem");
+        System.out.println("10. Gerenciar Passivas do Personagem");
         System.out.println("0. Voltar");
 
-        int opcao = InputUtil.readInt("Opção: ", 0, 8);
+        int opcao = InputUtil.readInt("Opção: ", 0, 10);
 
         switch (opcao) {
             case 1:
@@ -465,6 +482,23 @@ public class ConsoleDashboard {
                 break;
             case 8:
                 gerenciarAtaquesPersonagem(p);
+                break;
+            case 9:
+                List<Cidade> todasCidades = CidadeManager.listarTodas();
+                if (todasCidades.isEmpty()) {
+                    System.out.println("Nenhuma cidade cadastrada!");
+                    break;
+                }
+                System.out.println("Selecione a nova Cidade para o Personagem:");
+                for (int i = 0; i < todasCidades.size(); i++) {
+                    System.out.printf("%d. %s (Região: %s, Riqueza: %.1f)\n", i + 1, todasCidades.get(i).getNome(), todasCidades.get(i).getRegiao(), todasCidades.get(i).getIndiceRiqueza());
+                }
+                int selC = InputUtil.readInt("Opção: ", 1, todasCidades.size());
+                p.setCidade(todasCidades.get(selC - 1).getNome());
+                UiFormatter.printSuccess("O personagem viajou para " + p.getCidade() + "!");
+                break;
+            case 10:
+                gerenciarPassivasPersonagem(p);
                 break;
             case 0:
                 return;
@@ -1226,387 +1260,20 @@ public class ConsoleDashboard {
         return true;
     }
 
-    private void simularArena() {
-        List<Personagem> personagens = repository.listarTodos();
-        carregarMonstros();
 
-        if (personagens.isEmpty()) {
-            UiFormatter.printWarning("Necessário possuir ao menos 1 personagem salvo para usar a Arena!");
-            return;
-        }
-
-        UiFormatter.printSubtitle("ARENA DE DUELO ⚔️");
-        System.out.println("Escolha o ATACANTE (Jogador):");
-        for (int i = 0; i < personagens.size(); i++) {
-            System.out.printf("%d. %s\n", i + 1, personagens.get(i).getNome());
-        }
-        System.out.println("0. Voltar");
-        int idxA = InputUtil.readInt("Atacante (ou 0 para Voltar): ", 0, personagens.size());
-        if (idxA == 0) return;
-        Personagem atacante = clonarPersonagem(personagens.get(idxA - 1));
-
-        System.out.println("Escolha o DEFENSOR:");
-        System.out.println("--- JOGADORES ---");
-        int count = 1;
-        for (int i = 0; i < personagens.size(); i++) {
-            System.out.printf("%d. Jogador: %s\n", count++, personagens.get(i).getNome());
-        }
-        System.out.println("--- MONSTROS CATALOGADOS ---");
-        for (int i = 0; i < monstros.size(); i++) {
-            System.out.printf("%d. Monstro: %s (Tipo: %s)\n", count++, monstros.get(i).getNome(), monstros.get(i).getTipo());
-        }
-        System.out.println("0. Voltar");
-        int idxD = InputUtil.readInt("Defensor (ou 0 para Voltar): ", 0, count - 1);
-        if (idxD == 0) return;
-
-        EntidadeRPG defensor;
-        boolean defensorEhMonstro = false;
-        Monstro monstroDefensor = null;
-
-        if (idxD <= personagens.size()) {
-            defensor = clonarPersonagem(personagens.get(idxD - 1));
-        } else {
-            monstroDefensor = monstros.get(idxD - personagens.size() - 1);
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                String raw = mapper.writeValueAsString(monstroDefensor);
-                defensor = mapper.readValue(raw, Monstro.class);
-            } catch (Exception e) {
-                defensor = monstroDefensor;
-            }
-            defensorEhMonstro = true;
-        }
-
-        EventBus.getInstance().publish(new br.com.frcli.event.CombateIniciadoEvent(atacante, defensor));
-
-        UiFormatter.printTitle("⚔️ DUELO ATÉ A MORTE ⚔️");
-        System.out.printf("%s (%s) VS %s\n", 
-            UiFormatter.BOLD + UiFormatter.RED + atacante.getNome() + UiFormatter.RESET, 
-            atacante.getStatusFinalAtributo("vida") + " HP",
-            UiFormatter.BOLD + UiFormatter.BLUE + defensor.getNome() + UiFormatter.RESET + " (" + defensor.getStatusFinalAtributo("vida") + " HP)");
-
-        Random r = new Random();
-        int turno = 1;
-        double hpA = atacante.getStatusFinalAtributo("vida");
-        double hpD = defensor.getStatusFinalAtributo("vida");
-
-        double maxHpA = hpA;
-        double maxHpD = hpD;
-
-        while (hpA > 0 && hpD > 0) {
-            System.out.println("\n" + UiFormatter.BOLD + "=== ROUND " + turno + " ===" + UiFormatter.RESET);
-
-            int d20A = r.nextInt(20) + 1;
-            int d20D = r.nextInt(20) + 1;
-            double initA = d20A + atacante.getStatusFinalAtributo("velocidade");
-            double initD = d20D + defensor.getStatusFinalAtributo("velocidade");
-
-            System.out.printf("🎲 Iniciativa %s: d20(%d) + Vel(%.1f) = %.1f\n", atacante.getNome(), d20A, atacante.getStatusFinalAtributo("velocidade"), initA);
-            System.out.printf("🎲 Iniciativa %s: d20(%d) + Vel(%.1f) = %.1f\n", defensor.getNome(), d20D, defensor.getStatusFinalAtributo("velocidade"), initD);
-
-            EntidadeRPG primeiro = (initA >= initD) ? atacante : defensor;
-            EntidadeRPG segundo = (initA >= initD) ? defensor : atacante;
-
-            // Primeiro ataca
-            if (primeiro == atacante) {
-                hpD = executarAcaoTurno(atacante, defensor, hpA, hpD, r);
-            } else {
-                hpA = executarAcaoTurno(defensor, atacante, hpD, hpA, r);
-            }
-            if (hpA <= 0 || hpD <= 0) break;
-
-            // Segundo ataca
-            if (segundo == atacante) {
-                hpD = executarAcaoTurno(atacante, defensor, hpA, hpD, r);
-            } else {
-                hpA = executarAcaoTurno(defensor, atacante, hpD, hpA, r);
-            }
-
-            EventBus.getInstance().publish(new br.com.frcli.event.TurnoFinalizadoEvent(atacante, turno));
-            if (!defensorEhMonstro) {
-                EventBus.getInstance().publish(new br.com.frcli.event.TurnoFinalizadoEvent((Personagem) defensor, turno));
-            }
-
-            System.out.printf("\n[FIM DO ROUND %d] Saldo HP: %s: %.1f/%.1f | %s: %.1f/%.1f\n", 
-                turno, atacante.getNome(), hpA, maxHpA, defensor.getNome(), hpD, maxHpD);
-
-            turno++;
-            InputUtil.pressEnterToContinue();
-        }
-
-        EntidadeRPG vencedor = hpA > 0 ? atacante : defensor;
-        EntidadeRPG perdedor = hpA > 0 ? defensor : atacante;
-
-        UiFormatter.printSuccess("COMBATE TERMINADO! Vencedor: " + vencedor.getNome() + "! 🎉");
-        EventBus.getInstance().publish(new br.com.frcli.event.EntidadeDerrotadaEvent(perdedor));
-
-        if (defensorEhMonstro && hpA > 0) {
-            LootManager.LootResult loot = LootManager.gerarLoot((Monstro) defensor);
-            UiFormatter.printSubtitle("💎 RECOMPENSAS DO COMBATE");
-            System.out.printf("  Moedas G$ ganhas: G$ %.2f\n", loot.moedasG);
-            if (!loot.itens.isEmpty()) {
-                System.out.println("  Itens dropados:");
-                for (Item item : loot.itens) {
-                    System.out.println("    * " + item.getNome() + " (" + item.getDescricao() + ")");
-                }
-            } else {
-                System.out.println("  Nenhum item dropado.");
-            }
-
-            if (InputUtil.readBoolean("Deseja coletar todo o loot para a mochila do atacante? (s/n): ")) {
-                Personagem jogadorReal = personagens.get(idxA - 1);
-                try {
-                    InventoryManager.adicionarG(jogadorReal.getInventario(), loot.moedasG, false);
-                    System.out.println("G$ depositados na carteira.");
-                } catch (Exception e) {
-                    System.out.println("Erro ao depositar moedas.");
-                }
-
-                for (Item item : loot.itens) {
-                    try {
-                        InventoryManager.adicionarItem(jogadorReal.getInventario(), item);
-                        System.out.println("Item '" + item.getNome() + "' guardado na mochila.");
-                    } catch (MochilaCheiaException e) {
-                        UiFormatter.printError("Erro: Mochila cheia! Não foi possível pegar '" + item.getNome() + "'.");
-                        break;
-                    }
-                }
-                repository.salvar(jogadorReal);
-            }
-        }
-        InputUtil.pressEnterToContinue();
-    }
-
-    private double executarAcaoTurno(EntidadeRPG atacante, EntidadeRPG defensor, double hpAtacante, double hpDefensor, Random r) {
-        System.out.println("\n👉 Turno de " + atacante.getNome() + ":");
-
-        if (atacante instanceof Monstro) {
-            Monstro m = (Monstro) atacante;
-            String ataque = m.getAtaquesFixos().get(r.nextInt(m.getAtaquesFixos().size()));
-            System.out.println("👾 O monstro usa: " + ataque);
-
-            double danoBase = m.getStatusFinalAtributo("forca") * 1.5 + 10;
-            return processarAtaqueSimulado(atacante.getNome(), defensor, hpDefensor, danoBase, null, r);
-        }
-
-        Personagem p = (Personagem) atacante;
-        System.out.println("Escolha sua Ação:");
-        System.out.println("1. Ataque Físico Direto");
-        System.out.println("2. Usar Magia / Ataque Elemental");
-        System.out.println("3. Usar Buff Temporário (ex: Poção de Força/Vida)");
-        int escolha = InputUtil.readInt("Opção: ", 1, 3);
-
-        if (escolha == 1) {
-            Equipamento arma = p.getEquipamentosEquipados().get(SlotType.MAO_PRINCIPAL);
-            if (arma == null) {
-                arma = p.getEquipamentosEquipados().get(SlotType.DUAS_MAOS);
-            }
-
-            double danoBase;
-            if (arma != null) {
-                String tipoMunicao = arma.getTipoMunicao();
-                int qtdMunicao = arma.getQuantidadeMunicao() != null ? arma.getQuantidadeMunicao() : 0;
-
-                if (tipoMunicao != null && !tipoMunicao.isEmpty() && qtdMunicao > 0) {
-                    boolean temMunicao = consumirMunicaoQuantidade(p.getInventario(), tipoMunicao, qtdMunicao);
-                    if (!temMunicao) {
-                        System.out.printf("❌ Sem munição '%s' (%d unidades) na mochila para usar %s!\n", tipoMunicao, qtdMunicao, arma.getNome());
-                        System.out.println("Você realiza um soco básico desarmado no lugar.");
-                        danoBase = p.getStatusFinalAtributo("forca") + 5.0;
-                        return processarAtaqueSimulado(p.getNome(), defensor, hpDefensor, danoBase, null, r);
-                    }
-                    System.out.printf("🏹 Consumido %dx '%s' da mochila.\n", qtdMunicao, tipoMunicao);
-                }
-
-                danoBase = p.getStatusFinalAtributo("forca") + (arma.getDano() != null ? arma.getDano() : 0.0) + 10.0;
-                System.out.printf("⚔️ Atacando com %s (Dano Arma: %.1f)\n", arma.getNome(), arma.getDano());
-            } else {
-                danoBase = p.getStatusFinalAtributo("forca") + 10.0; // Ataque desarmado
-                System.out.println("👊 Atacando de mãos vazias.");
-            }
-
-            return processarAtaqueSimulado(p.getNome(), defensor, hpDefensor, danoBase, null, r);
-        } else if (escolha == 2) {
-            if (p.getMagias().isEmpty()) {
-                UiFormatter.printWarning("Você não conhece magias! Usando ataque físico no lugar.");
-                double danoBase = p.getStatusFinalAtributo("forca") + 15.0;
-                return processarAtaqueSimulado(p.getNome(), defensor, hpDefensor, danoBase, null, r);
-            } else {
-                System.out.println("Selecione a Magia:");
-                for (int i = 0; i < p.getMagias().size(); i++) {
-                    System.out.printf("%d. %s (%s)\n", i + 1, p.getMagias().get(i).getNome(), p.getMagias().get(i).getNomeTraduzido());
-                }
-                int idxM = InputUtil.readInt("Magia: ", 1, p.getMagias().size());
-                Magia m = p.getMagias().get(idxM - 1);
-                double danoBase = p.getStatusFinalAtributo("inteligencia") * 1.5 + 20.0;
-                return processarAtaqueSimulado(p.getNome(), defensor, hpDefensor, danoBase, m, r);
-            }
-        } else {
-            System.out.println("Escolha o Buff:");
-            System.out.println("1. Poção de Fúria (+5 Força, 3 turnos)");
-            System.out.println("2. Poção de Haste (+5 Velocidade, 3 turnos)");
-            System.out.println("3. Poção de Defesa (+25 Vida/HP extra temporário, 2 turnos)");
-            int idxB = InputUtil.readInt("Opção: ", 1, 3);
-            EfeitoTemporario eff;
-            if (idxB == 1) {
-                eff = new EfeitoTemporario("Poção de Fúria", "forca", 5.0, 3);
-            } else if (idxB == 2) {
-                eff = new EfeitoTemporario("Poção de Haste", "velocidade", 5.0, 3);
-            } else {
-                eff = new EfeitoTemporario("Poção de Defesa", "vida", 25.0, 2);
-            }
-            p.getEfeitosTemporarios().add(eff);
-            StatusManager.recalcularStatus(p);
-            UiFormatter.printSuccess("Aplicou: " + eff.getNome() + "! Status recalculados!");
-            return hpDefensor;
-        }
-    }
-
-    private double processarAtaqueSimulado(String atacanteNome, EntidadeRPG defensor, double hpDefensor, double danoBase, Magia m, Random r) {
-        double destrezaDefensor = defensor.getStatusFinalAtributo("destreza");
-        double esquivaChance = Math.min(40.0, destrezaDefensor * 2.0); // max 40% de esquiva
-
-        int rolagem = r.nextInt(100) + 1;
-        if (rolagem <= esquivaChance) {
-            UiFormatter.printWarning("O golpe ERROU! " + defensor.getNome() + " se esquivou!");
-            return hpDefensor;
-        }
-
-        double danoFinal = danoBase;
-        if (m != null) {
-            danoFinal = CombatManager.calcularDano(defensor, m, danoBase);
-            if (danoFinal > danoBase) {
-                UiFormatter.printWarning("VULNERABILIDADE ELEMENTAR DETECTADA! Dano ampliado em 50%!");
-            }
-        }
-
-        double novoHp = Math.max(0.0, hpDefensor - danoFinal);
-        System.out.printf("💥 Dano Infligido em %s: %.1f HP. Novo HP: %.1f\n", defensor.getNome(), danoFinal, novoHp);
-        return novoHp;
-    }
-
-    private void menuMercado() {
-        Personagem p = selecionarPersonagem();
-        if (p == null) return;
-
-        while (true) {
-            MenuBuilder menu = new MenuBuilder("🛒 MERCADO IMPERIAL - " + p.getNome().toUpperCase());
-            menu.addItem(1, "Comprar Item do Catálogo", "Comprar novos itens")
-                .addItem(2, "Vender Item da Mochila", "Vender para o mercado por 50%")
-                .addItem(3, "Exibir Catálogo Geral", "Ver itens disponíveis")
-                .addItem(0, "Voltar", "Menu anterior");
-
-            int opcao = menu.getUserChoice(0, 3);
-            switch (opcao) {
-                case 1:
-                    comprarItemLoja(p);
-                    break;
-                case 2:
-                    venderItemLoja(p);
-                    break;
-                case 3:
-                    exibirCatalogoLoja();
-                    break;
-                case 0:
-                    return;
-            }
-        }
-    }
-
-    private void comprarItemLoja(Personagem p) {
-        List<Item> catalogo = ItemFactory.listarCatalogo();
-        if (catalogo.isEmpty()) {
-            UiFormatter.printWarning("O catálogo global está vazio. Importe itens primeiro!");
-            return;
-        }
-
-        UiFormatter.printSubtitle("🛍️ COMPRAR ITEM");
-        System.out.println("Saldo Atual: G$ " + p.getInventario().getDinheiroG() + " / " + p.getInventario().getMaxG() + " (Teto)");
-        for (int i = 0; i < catalogo.size(); i++) {
-            Item item = catalogo.get(i);
-            double precoCompra = EconomyManager.calcularPrecoCompra(item, p);
-            System.out.printf("%d. %s - Preço Base: G$ %.2f | Com Carisma: G$ %.2f (%s)\n", 
-                i + 1, item.getNome(), item.getValorComercial(), precoCompra, item.getDescricao());
-        }
-        System.out.println("0. Voltar");
-        int index = InputUtil.readInt("Opção: ", 0, catalogo.size());
-        if (index == 0) return;
-
-        Item itemEscolhido = catalogo.get(index - 1);
-        double precoFinal = EconomyManager.calcularPrecoCompra(itemEscolhido, p);
-        if (p.getInventario().getItens().size() >= p.getInventario().getMaxItens()) {
-            UiFormatter.printError("Erro: Mochila cheia!");
-            return;
-        }
-        if (p.getInventario().getDinheiroG() < precoFinal) {
-            UiFormatter.printError("Erro: G$ insuficiente!");
-            return;
-        }
-
-        if (EconomyManager.comprarItem(p, itemEscolhido)) {
-            repository.salvar(p);
-            UiFormatter.printSuccess("Item '" + itemEscolhido.getNome() + "' comprado com sucesso por G$ " + precoFinal + "! 🎒");
-        } else {
-            UiFormatter.printError("Erro ao processar transação.");
-        }
-    }
-
-    private void venderItemLoja(Personagem p) {
-        List<Item> itens = p.getInventario().getItens();
-        if (itens.isEmpty()) {
-            UiFormatter.printWarning("Sua mochila está vazia!");
-            return;
-        }
-
-        UiFormatter.printSubtitle("💰 VENDER ITEM (50% do Preço Base)");
-        for (int i = 0; i < itens.size(); i++) {
-            Item item = itens.get(i);
-            double precoVenda = EconomyManager.calcularPrecoVenda(item, p);
-            System.out.printf("%d. %s (Venda: G$ %.2f) - %s\n", i + 1, item.getNome(), precoVenda, item.getDescricao());
-        }
-        System.out.println("0. Voltar");
-        int index = InputUtil.readInt("Opção: ", 0, itens.size());
-        if (index == 0) return;
-
-        Item itemVenda = itens.get(index - 1);
-        double precoVendaFinal = EconomyManager.calcularPrecoVenda(itemVenda, p);
-        if (p.getInventario().getDinheiroG() + precoVendaFinal > p.getInventario().getMaxG()) {
-            UiFormatter.printWarning("Atenção: Adicionar G$ " + precoVendaFinal + " excederá o teto da sua mochila (" + p.getInventario().getMaxG() + "). O excedente será descartado.");
-        }
-
-        if (EconomyManager.venderItem(p, itemVenda)) {
-            repository.salvar(p);
-            UiFormatter.printSuccess("Item '" + itemVenda.getNome() + "' vendido com sucesso por G$ " + precoVendaFinal + "! 🪙");
-        } else {
-            UiFormatter.printError("Erro ao vender o item.");
-        }
-    }
-
-    private void exibirCatalogoLoja() {
-        List<Item> catalogo = ItemFactory.listarCatalogo();
-        if (catalogo.isEmpty()) {
-            UiFormatter.printWarning("Nenhum item cadastrado no catálogo.");
-            return;
-        }
-        UiFormatter.printSubtitle("📖 CATÁLOGO DE ITENS DISPONÍVEIS");
-        for (Item item : catalogo) {
-            String tipo = (item instanceof Equipamento) ? "EQUIPAMENTO (" + ((Equipamento) item).getSlotCompativel() + ")" : "CONSUMÍVEL";
-            System.out.printf("  * %s (%s) - Valor Base: G$ %.2f - %s\n", 
-                item.getNome(), tipo, item.getValorComercial(), item.getDescricao());
-        }
-        InputUtil.pressEnterToContinue();
-    }
 
     private void menuImportacaoItens() {
         while (true) {
-            MenuBuilder menu = new MenuBuilder("🛠️ IMPORTAÇÃO & CADASTRO DE ITENS 🛠️");
+            MenuBuilder menu = new MenuBuilder("🛠️ IMPORTAÇÃO & CADASTRO DE DADOS 🛠️");
             menu.addItem(1, "Criar Item e Adicionar ao Catálogo", "Formulário manual")
                 .addItem(2, "Importar Itens em Lote (CSV)", "Ler arquivos da pasta dados/imports")
-                .addItem(3, "Gerenciar Catálogo", "Visualizar, editar ou excluir itens do catálogo")
-                .addItem(4, "Visualizar Todos os Itens (Detalhado)", "Exibir detalhes de todos os itens cadastrados")
+                .addItem(3, "Importar Ataques em Lote (CSV)", "Ler arquivos da pasta dados/imports")
+                .addItem(4, "Importar Passivas em Lote (CSV)", "Ler arquivos da pasta dados/imports")
+                .addItem(5, "Gerenciar Catálogo", "Visualizar, editar ou excluir itens do catálogo")
+                .addItem(6, "Visualizar Todos os Itens (Detalhado)", "Exibir detalhes de todos os itens cadastrados")
                 .addItem(0, "Voltar", "Menu anterior");
 
-            int opcao = menu.getUserChoice(0, 4);
+            int opcao = menu.getUserChoice(0, 6);
             switch (opcao) {
                 case 1:
                     criarItemManualCatalogo();
@@ -1615,9 +1282,15 @@ public class ConsoleDashboard {
                     importarLoteCSV();
                     break;
                 case 3:
-                    gerenciarCatalogoItens();
+                    importarAtaquesCSV();
                     break;
                 case 4:
+                    importarPassivasCSV();
+                    break;
+                case 5:
+                    gerenciarCatalogoItens();
+                    break;
+                case 6:
                     visualizarTodosItensDetalhado();
                     break;
                 case 0:
@@ -1630,9 +1303,16 @@ public class ConsoleDashboard {
         UiFormatter.printSubtitle("CADASTRAR NOVO ITEM NO CATÁLOGO");
         String nome = InputUtil.readStringNotEmpty("Nome do Item: ");
         String desc = InputUtil.readString("Descrição: ");
-        double valor = InputUtil.readDouble("Valor Comercial Base: ", 0, Double.MAX_VALUE);
 
-        System.out.println("Tipo do Item:");
+        System.out.println("Selecione a Raridade:");
+        Raridade[] raridades = Raridade.values();
+        for (int i = 0; i < raridades.length; i++) {
+            System.out.printf("%d. %s (Multiplicador: x%.1f)\n", i + 1, raridades[i], raridades[i].getMultiplicador());
+        }
+        int idxR = InputUtil.readInt("Opção: ", 1, raridades.length);
+        Raridade raridade = raridades[idxR - 1];
+
+        System.out.println("\nTipo do Item:");
         System.out.println("1. Equipamento");
         System.out.println("2. Consumível");
         System.out.println("0. Cancelar");
@@ -1666,11 +1346,27 @@ public class ConsoleDashboard {
                 habs.add(new Habilidade(habNome, habTipo, habDesc));
             }
 
-            novoItem = new Equipamento(nome, desc, valor, "G$", slot, mods, habs);
+            novoItem = new Equipamento(nome, desc, 0.0, "G$", slot, mods, habs);
         } else {
             int cargas = InputUtil.readInt("Cargas / Usos: ", 1, 100);
-            novoItem = new ItemConsumivel(nome, desc, valor, "G$", cargas);
+            novoItem = new ItemConsumivel(nome, desc, 0.0, "G$", cargas);
         }
+
+        novoItem.setRaridade(raridade);
+        int poder = ItemPowerCalculator.calcularPoder(novoItem);
+        novoItem.setPoder(poder);
+        double precoSugerido = PricingEngine.precoBaseSugerido(novoItem);
+
+        System.out.println("\n----------------------------------------------");
+        System.out.printf("📊 PODER ESTIMADO: %d | RARIDADE: %s\n", poder, raridade);
+        System.out.printf("💰 PREÇO BASE SUGERIDO: G$ %.2f\n", precoSugerido);
+        System.out.println("----------------------------------------------");
+        
+        double valor = InputUtil.readDouble("Valor Comercial Final (digite 0 para aceitar o preço sugerido): ", 0, Double.MAX_VALUE);
+        if (valor <= 0.0) {
+            valor = precoSugerido;
+        }
+        novoItem.setValorComercial(valor);
 
         ItemFactory.adicionarAoCatalogo(novoItem);
         UiFormatter.printSuccess("Item '" + nome + "' cadastrado no catálogo global!");
@@ -1703,6 +1399,72 @@ public class ConsoleDashboard {
         try {
             int count = ItemFactory.importarCSV(selected);
             UiFormatter.printSuccess("Importação concluída! " + count + " itens foram adicionados ao catálogo.");
+        } catch (Exception e) {
+            UiFormatter.printError("Erro ao importar CSV: " + e.getMessage());
+        }
+        InputUtil.pressEnterToContinue();
+    }
+
+    private void importarAtaquesCSV() {
+        File dir = new File("dados/imports");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        File[] csvFiles = dir.listFiles((d, name) -> name.endsWith(".csv"));
+        if (csvFiles == null || csvFiles.length == 0) {
+            UiFormatter.printWarning("Nenhum arquivo .csv encontrado na pasta '/dados/imports/'.");
+            System.out.println("Crie um arquivo .csv contendo linhas formatadas como:");
+            System.out.println("Nome;Descrição;TipoMagiaOuArma;Dano;Nível");
+            System.out.println("Exemplo: Bola de Fogo;Dispara uma bola de fogo;Pyromacia;2d10;1");
+            InputUtil.pressEnterToContinue();
+            return;
+        }
+
+        UiFormatter.printSubtitle("IMPORTAR ATAQUES: SELECIONE O ARQUIVO:");
+        for (int i = 0; i < csvFiles.length; i++) {
+            System.out.printf("%d. %s\n", i + 1, csvFiles[i].getName());
+        }
+        System.out.println("0. Voltar");
+        int choice = InputUtil.readInt("Opção: ", 0, csvFiles.length);
+        if (choice == 0) return;
+
+        File selected = csvFiles[choice - 1];
+        try {
+            int count = AtaqueFactory.importarCSV(selected);
+            UiFormatter.printSuccess("Importação concluída! " + count + " ataques foram adicionados ao catálogo.");
+        } catch (Exception e) {
+            UiFormatter.printError("Erro ao importar CSV: " + e.getMessage());
+        }
+        InputUtil.pressEnterToContinue();
+    }
+
+    private void importarPassivasCSV() {
+        File dir = new File("dados/imports");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        File[] csvFiles = dir.listFiles((d, name) -> name.endsWith(".csv"));
+        if (csvFiles == null || csvFiles.length == 0) {
+            UiFormatter.printWarning("Nenhum arquivo .csv encontrado na pasta '/dados/imports/'.");
+            System.out.println("Crie um arquivo .csv contendo linhas formatadas como:");
+            System.out.println("Nome;Descrição;TipoMagiaOuArma;Condição;Efeito");
+            System.out.println("Exemplo: Parada Temporal;Para o tempo quando prestes a morrer;Cronomacia;preste a receber um ataque fatal;paro o tempo");
+            InputUtil.pressEnterToContinue();
+            return;
+        }
+
+        UiFormatter.printSubtitle("IMPORTAR PASSIVAS: SELECIONE O ARQUIVO:");
+        for (int i = 0; i < csvFiles.length; i++) {
+            System.out.printf("%d. %s\n", i + 1, csvFiles[i].getName());
+        }
+        System.out.println("0. Voltar");
+        int choice = InputUtil.readInt("Opção: ", 0, csvFiles.length);
+        if (choice == 0) return;
+
+        File selected = csvFiles[choice - 1];
+        try {
+            int count = PassivaFactory.importarCSV(selected);
+            UiFormatter.printSuccess("Importação concluída! " + count + " passivas foram adicionados ao catálogo.");
         } catch (Exception e) {
             UiFormatter.printError("Erro ao importar CSV: " + e.getMessage());
         }
@@ -2272,5 +2034,849 @@ public class ConsoleDashboard {
 
         AtaqueFactory.atualizarNoCatalogo(nomeAntigo, a);
         UiFormatter.printSuccess("Ataque atualizado com sucesso! 💾");
+    }
+
+    // ==========================================
+    // MENU DE COMÉRCIO E LOJAS
+    // ==========================================
+    private void menuComercioLojas() {
+        while (true) {
+            MenuBuilder menu = new MenuBuilder("🏪 SISTEMA DE COMÉRCIO & LOJAS 🏪");
+            menu.addItem(1, "Ver Lojas por Cidade", "Listar lojas e ver estoque/descontos")
+                .addItem(2, "Comprar Item de uma Loja", "Comprar item como um personagem")
+                .addItem(3, "Vender Item para uma Loja", "Vender item da mochila")
+                .addItem(4, "Buscar Item no Comércio", "Procurar onde vende mais barato (com frete)")
+                .addItem(5, "Comércio entre Lojas (Mestre/Logística)", "Fazer loja comprar ou transferir itens")
+                .addItem(6, "Atualizar Lojas (Simular Aventureiros)", "Executa simulação de mercado")
+                .addItem(7, "Gerenciar Cidades, Redes e Lojas (Mestre)", "Criar cidades, redes e lojas")
+                .addItem(0, "Voltar", "Menu principal");
+
+            int opcao = menu.getUserChoice(0, 7);
+            switch (opcao) {
+                case 1:
+                    verLojasPorCidade();
+                    break;
+                case 2:
+                    comprarItemDeLoja();
+                    break;
+                case 3:
+                    venderItemParaLoja();
+                    break;
+                case 4:
+                    buscarItemNoComercio();
+                    break;
+                case 5:
+                    menuComercioEntreLojas();
+                    break;
+                case 6:
+                    simularMercadoLojas();
+                    break;
+                case 7:
+                    menuGerenciamentoEntidades();
+                    break;
+                case 0:
+                    return;
+            }
+        }
+    }
+
+    private void verLojasPorCidade() {
+        List<Cidade> cidades = CidadeManager.listarTodas();
+        if (cidades.isEmpty()) {
+            UiFormatter.printWarning("Nenhuma cidade cadastrada!");
+            return;
+        }
+
+        UiFormatter.printSubtitle("CIDADES DISPONÍVEIS");
+        for (int i = 0; i < cidades.size(); i++) {
+            Cidade c = cidades.get(i);
+            System.out.printf("%d. %s (Região: %s, Riqueza: %.1f)\n", i + 1, c.getNome(), c.getRegiao(), c.getIndiceRiqueza());
+        }
+        System.out.println("0. Voltar");
+
+        int selC = InputUtil.readInt("Selecione a cidade: ", 0, cidades.size());
+        if (selC == 0) return;
+
+        Cidade cidade = cidades.get(selC - 1);
+        List<Loja> todasLojas = LojaManager.listarTodasLojas();
+        List<Loja> lojasNaCidade = new ArrayList<>();
+        for (Loja l : todasLojas) {
+            if (l.getCidade().equalsIgnoreCase(cidade.getNome())) {
+                lojasNaCidade.add(l);
+            }
+        }
+
+        if (lojasNaCidade.isEmpty()) {
+            UiFormatter.printWarning("Nenhuma loja cadastrada nesta cidade!");
+            return;
+        }
+
+        UiFormatter.printSubtitle("LOJAS EM " + cidade.getNome().toUpperCase());
+        for (int i = 0; i < lojasNaCidade.size(); i++) {
+            Loja l = lojasNaCidade.get(i);
+            String tipo = (l instanceof SedeRede) ? "Sede de Rede" : "Loja Individual";
+            System.out.printf("%d. %s [%s] (Caixa: G$ %.2f, Poder: %d)\n", i + 1, l.getNome(), tipo, l.getCaixa(), l.getPoder());
+        }
+        System.out.println("0. Voltar");
+
+        int selL = InputUtil.readInt("Selecione a loja para ver o catálogo: ", 0, lojasNaCidade.size());
+        if (selL == 0) return;
+
+        Loja loja = lojasNaCidade.get(selL - 1);
+        
+        FlashSaleManager.rolarDescontos(loja);
+
+        UiFormatter.printSubtitle("CATÁLOGO: " + loja.getNome().toUpperCase());
+        System.out.printf("Cidade: %s | Tipo: %s\n", loja.getCidade(), (loja instanceof SedeRede) ? "Sede" : "Individual");
+        System.out.printf("Caixa: G$ %.2f | Poder: %d\n", loja.getCaixa(), loja.getPoder());
+        System.out.println("----------------------------------------------");
+
+        if (loja.getEstoque().isEmpty()) {
+            System.out.println("  (Estoque vazio)");
+        } else {
+            for (Map.Entry<String, Integer> entry : loja.getEstoque().entrySet()) {
+                Item item = ItemFactory.obterItemDoCatalogo(entry.getKey());
+                if (item != null) {
+                    double base = TradeNetworkManager.obterPrecoVendaLoja(loja, item);
+                    double desc = FlashSaleManager.obterDescontoRelampago(loja.getId(), item.getNome());
+                    double precoFinal = base * (1.0 - desc);
+                    
+                    String promoStr = desc > 0 ? String.format("%s [PROMOÇÃO! %.0f%% OFF! De G$ %.2f]%s", UiFormatter.GREEN, desc * 100.0, base, UiFormatter.RESET) : "";
+                    System.out.printf("  • %s (Qtd: %d) | Poder: %d | Preço: G$ %.2f %s\n", 
+                        UiFormatter.BOLD + item.getNome() + UiFormatter.RESET, 
+                        entry.getValue(), 
+                        item.getPoder(), 
+                        precoFinal, 
+                        promoStr);
+                }
+            }
+        }
+        System.out.println("----------------------------------------------");
+        InputUtil.pressEnterToContinue();
+    }
+
+    private void comprarItemDeLoja() {
+        Personagem p = selecionarPersonagem();
+        if (p == null) return;
+
+        List<Cidade> cidades = CidadeManager.listarTodas();
+        if (cidades.isEmpty()) {
+            UiFormatter.printWarning("Nenhuma cidade cadastrada!");
+            return;
+        }
+
+        UiFormatter.printSubtitle("COMPRAR: SELECIONE A CIDADE DA LOJA");
+        System.out.println("Cidade atual do personagem: " + p.getCidade());
+        for (int i = 0; i < cidades.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, cidades.get(i).getNome());
+        }
+        System.out.println("0. Voltar");
+        int selC = InputUtil.readInt("Cidade: ", 0, cidades.size());
+        if (selC == 0) return;
+
+        Cidade cidade = cidades.get(selC - 1);
+        List<Loja> todasLojas = LojaManager.listarTodasLojas();
+        List<Loja> lojasNaCidade = new ArrayList<>();
+        for (Loja l : todasLojas) {
+            if (l.getCidade().equalsIgnoreCase(cidade.getNome())) {
+                lojasNaCidade.add(l);
+            }
+        }
+
+        if (lojasNaCidade.isEmpty()) {
+            UiFormatter.printWarning("Nenhuma loja cadastrada nesta cidade!");
+            return;
+        }
+
+        UiFormatter.printSubtitle("COMPRAR: SELECIONE A LOJA");
+        for (int i = 0; i < lojasNaCidade.size(); i++) {
+            System.out.printf("%d. %s (Poder: %d)\n", i + 1, lojasNaCidade.get(i).getNome(), lojasNaCidade.get(i).getPoder());
+        }
+        System.out.println("0. Voltar");
+        int selL = InputUtil.readInt("Loja: ", 0, lojasNaCidade.size());
+        if (selL == 0) return;
+
+        Loja loja = lojasNaCidade.get(selL - 1);
+
+        if (loja.getEstoque().isEmpty()) {
+            UiFormatter.printWarning("A loja não possui itens em estoque!");
+            return;
+        }
+
+        FlashSaleManager.rolarDescontos(loja);
+
+        List<String> itensEstoque = new ArrayList<>(loja.getEstoque().keySet());
+        UiFormatter.printSubtitle("ITENS DISPONÍVEIS NA LOJA: " + loja.getNome().toUpperCase());
+        System.out.printf("Saldo Jogador: G$ %.2f | Cidade Atual: %s\n", p.getInventario().getDinheiroG(), p.getCidade());
+        if (!loja.getCidade().equalsIgnoreCase(p.getCidade())) {
+            System.out.println(UiFormatter.YELLOW + "⚠️ Loja em outra cidade! Frete intermunicipal de G$ 15.00 será adicionado." + UiFormatter.RESET);
+        }
+
+        for (int i = 0; i < itensEstoque.size(); i++) {
+            String itemChave = itensEstoque.get(i);
+            Item item = ItemFactory.obterItemDoCatalogo(itemChave);
+            int qtd = loja.getEstoque().get(itemChave);
+            if (item != null) {
+                double precoVenda = LojaEconomyManager.calcularPrecoVendaAoJogador(loja, item, p);
+                double desc = FlashSaleManager.obterDescontoRelampago(loja.getId(), item.getNome());
+                String promo = desc > 0 ? String.format(" (Promoção! %.0f%% OFF)", desc*100) : "";
+                System.out.printf("%d. %s (Estoque: %d) - Preço Final: G$ %.2f%s\n", i + 1, item.getNome(), qtd, precoVenda, promo);
+            }
+        }
+        System.out.println("0. Voltar");
+        int selI = InputUtil.readInt("Selecione o item para comprar: ", 0, itensEstoque.size());
+        if (selI == 0) return;
+
+        String itemNome = itensEstoque.get(selI - 1);
+        Item item = ItemFactory.obterItemDoCatalogo(itemNome);
+        if (item != null) {
+            double custo = LojaEconomyManager.calcularPrecoVendaAoJogador(loja, item, p);
+            if (LojaEconomyManager.comprarDaLoja(p, loja, itemNome)) {
+                UiFormatter.printSuccess("Compra realizada! Item '" + item.getNome() + "' adicionado à mochila por G$ " + custo);
+            }
+        }
+        InputUtil.pressEnterToContinue();
+    }
+
+    private void venderItemParaLoja() {
+        Personagem p = selecionarPersonagem();
+        if (p == null) return;
+
+        List<Item> mochilaItens = p.getInventario().getItens();
+        if (mochilaItens.isEmpty()) {
+            UiFormatter.printWarning("Sua mochila está vazia!");
+            InputUtil.pressEnterToContinue();
+            return;
+        }
+
+        List<Cidade> cidades = CidadeManager.listarTodas();
+        if (cidades.isEmpty()) {
+            UiFormatter.printWarning("Nenhuma cidade cadastrada!");
+            return;
+        }
+
+        UiFormatter.printSubtitle("VENDER: SELECIONE A CIDADE DA LOJA");
+        for (int i = 0; i < cidades.size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, cidades.get(i).getNome());
+        }
+        System.out.println("0. Voltar");
+        int selC = InputUtil.readInt("Cidade: ", 0, cidades.size());
+        if (selC == 0) return;
+
+        Cidade cidade = cidades.get(selC - 1);
+        List<Loja> todasLojas = LojaManager.listarTodasLojas();
+        List<Loja> lojasNaCidade = new ArrayList<>();
+        for (Loja l : todasLojas) {
+            if (l.getCidade().equalsIgnoreCase(cidade.getNome())) {
+                lojasNaCidade.add(l);
+            }
+        }
+
+        if (lojasNaCidade.isEmpty()) {
+            UiFormatter.printWarning("Nenhuma loja cadastrada nesta cidade!");
+            return;
+        }
+
+        UiFormatter.printSubtitle("VENDER: SELECIONE A LOJA");
+        for (int i = 0; i < lojasNaCidade.size(); i++) {
+            System.out.printf("%d. %s (Caixa: G$ %.2f, Poder: %d)\n", i + 1, lojasNaCidade.get(i).getNome(), lojasNaCidade.get(i).getCaixa(), lojasNaCidade.get(i).getPoder());
+        }
+        System.out.println("0. Voltar");
+        int selL = InputUtil.readInt("Loja: ", 0, lojasNaCidade.size());
+        if (selL == 0) return;
+
+        Loja loja = lojasNaCidade.get(selL - 1);
+
+        UiFormatter.printSubtitle("SEUS ITENS NA MOCHILA");
+        for (int i = 0; i < mochilaItens.size(); i++) {
+            Item item = mochilaItens.get(i);
+            double precoCompraLoja = LojaEconomyManager.calcularPrecoCompraDoJogador(loja, item, p);
+            System.out.printf("%d. %s (Poder: %d) - Loja paga: G$ %.2f\n", i + 1, item.getNome(), item.getPoder(), precoCompraLoja);
+        }
+        System.out.println("0. Voltar");
+        int selI = InputUtil.readInt("Selecione o item para vender: ", 0, mochilaItens.size());
+        if (selI == 0) return;
+
+        Item item = mochilaItens.get(selI - 1);
+        double preco = LojaEconomyManager.calcularPrecoCompraDoJogador(loja, item, p);
+        if (LojaEconomyManager.venderParaLoja(p, loja, item)) {
+            UiFormatter.printSuccess("Venda concluída! Você vendeu '" + item.getNome() + "' por G$ " + preco);
+        }
+        InputUtil.pressEnterToContinue();
+    }
+
+    private void buscarItemNoComercio() {
+        String nomeItem = InputUtil.readStringNotEmpty("Digite o nome ou parte do nome do item: ").trim().toLowerCase();
+        
+        List<Loja> todasLojas = LojaManager.listarTodasLojas();
+        List<Loja> vendedores = new ArrayList<>();
+        for (Loja l : todasLojas) {
+            for (String key : l.getEstoque().keySet()) {
+                if (key.contains(nomeItem)) {
+                    vendedores.add(l);
+                    break;
+                }
+            }
+        }
+
+        if (vendedores.isEmpty()) {
+            UiFormatter.printWarning("Nenhum estabelecimento comercial possui este item no estoque!");
+            InputUtil.pressEnterToContinue();
+            return;
+        }
+
+        Personagem p = selecionarPersonagem();
+        if (p == null) return;
+
+        class LojaPreco {
+            Loja loja;
+            Item item;
+            double precoFinal;
+            int estoque;
+        }
+
+        List<LojaPreco> list = new ArrayList<>();
+        for (Loja l : vendedores) {
+            for (String key : l.getEstoque().keySet()) {
+                if (key.contains(nomeItem)) {
+                    Item item = ItemFactory.obterItemDoCatalogo(key);
+                    if (item != null) {
+                        LojaPreco lp = new LojaPreco();
+                        lp.loja = l;
+                        lp.item = item;
+                        lp.precoFinal = LojaEconomyManager.calcularPrecoVendaAoJogador(l, item, p);
+                        lp.estoque = l.getEstoque().get(key);
+                        list.add(lp);
+                    }
+                }
+            }
+        }
+
+        list.sort(Comparator.comparingDouble(lp -> lp.precoFinal));
+
+        UiFormatter.printSubtitle("RESULTADO DA BUSCA DE ITENS (MAIS BARATOS PRIMEIRO)");
+        System.out.println("Sua cidade atual: " + p.getCidade());
+        for (int i = 0; i < list.size(); i++) {
+            LojaPreco lp = list.get(i);
+            String freteStr = lp.loja.getCidade().equalsIgnoreCase(p.getCidade()) ? "" : " (G$ +15.00 frete incluso)";
+            System.out.printf("%d. %s em '%s' (%s) - Qtd: %d | Preço Final: G$ %.2f%s\n", 
+                i + 1, 
+                lp.item.getNome(), 
+                lp.loja.getNome(), 
+                lp.loja.getCidade(), 
+                lp.estoque, 
+                lp.precoFinal, 
+                freteStr);
+        }
+
+        System.out.println("\nDeseja comprar algum item diretamente?");
+        System.out.println("Selecione o número correspondente (ou 0 para Cancelar):");
+        int opt = InputUtil.readInt("Opção: ", 0, list.size());
+        if (opt == 0) return;
+
+        LojaPreco selecionado = list.get(opt - 1);
+        if (LojaEconomyManager.comprarDaLoja(p, selecionado.loja, selecionado.item.getNome())) {
+            UiFormatter.printSuccess("Item '" + selecionado.item.getNome() + "' comprado com sucesso!");
+        }
+        InputUtil.pressEnterToContinue();
+    }
+
+    private void menuComercioEntreLojas() {
+        while (true) {
+            UiFormatter.printSubtitle("LOGÍSTICA E COMÉRCIO ENTRE ESTABELECIMENTOS");
+            System.out.println("1. Transferência ao Custo (Mesma Rede de Lojas)");
+            System.out.println("2. Reabastecimento por Compra (Procurement / Loja Individual Compra de Fornecedor)");
+            System.out.println("0. Voltar");
+
+            int opt = InputUtil.readInt("Opção: ", 0, 2);
+            if (opt == 0) return;
+
+            List<Loja> lojas = LojaManager.listarTodasLojas();
+            if (lojas.isEmpty()) {
+                System.out.println("Nenhuma loja cadastrada!");
+                continue;
+            }
+
+            if (opt == 1) {
+                List<SedeRede> sedes = new ArrayList<>();
+                for (Loja l : lojas) {
+                    if (l instanceof SedeRede) {
+                        sedes.add((SedeRede) l);
+                    }
+                }
+
+                if (sedes.size() < 2) {
+                    UiFormatter.printWarning("Necessário ter pelo menos 2 Sedes de Rede cadastradas!");
+                    continue;
+                }
+
+                System.out.println("Escolha a SEDE DE ORIGEM (Quem envia o item):");
+                for (int i = 0; i < sedes.size(); i++) {
+                    System.out.printf("%d. %s (Rede: %s, Caixa: G$ %.2f)\n", i + 1, sedes.get(i).getNome(), sedes.get(i).getRedeId(), sedes.get(i).getCaixa());
+                }
+                int selO = InputUtil.readInt("Origem: ", 1, sedes.size());
+                SedeRede origem = sedes.get(selO - 1);
+
+                if (origem.getEstoque().isEmpty()) {
+                    System.out.println("Estoque da origem está vazio!");
+                    continue;
+                }
+
+                System.out.println("Escolha a SEDE DE DESTINO (Quem recebe o item):");
+                List<SedeRede> destinosElegiveis = new ArrayList<>();
+                for (SedeRede s : sedes) {
+                    if (s.getRedeId().equalsIgnoreCase(origem.getRedeId()) && !s.getId().equals(origem.getId())) {
+                        destinosElegiveis.add(s);
+                    }
+                }
+
+                if (destinosElegiveis.isEmpty()) {
+                    UiFormatter.printWarning("Nenhuma outra Sede cadastrada na mesma rede '" + origem.getRedeId() + "'!");
+                    continue;
+                }
+
+                for (int i = 0; i < destinosElegiveis.size(); i++) {
+                    System.out.printf("%d. %s (Caixa: G$ %.2f)\n", i + 1, destinosElegiveis.get(i).getNome(), destinosElegiveis.get(i).getCaixa());
+                }
+                int selD = InputUtil.readInt("Destino: ", 1, destinosElegiveis.size());
+                SedeRede destino = destinosElegiveis.get(selD - 1);
+
+                List<String> estoqueList = new ArrayList<>(origem.getEstoque().keySet());
+                System.out.println("Selecione o item para transferir:");
+                for (int i = 0; i < estoqueList.size(); i++) {
+                    String chave = estoqueList.get(i);
+                    System.out.printf("%d. %s (Qtd: %d)\n", i + 1, chave, origem.getEstoque().get(chave));
+                }
+                int selI = InputUtil.readInt("Item: ", 1, estoqueList.size());
+                String itemNome = estoqueList.get(selI - 1);
+                
+                int maxQ = origem.getEstoque().get(itemNome);
+                int qtd = InputUtil.readInt("Quantidade para transferir (máx " + maxQ + "): ", 1, maxQ);
+
+                if (TradeNetworkManager.transferirEntreSedes(origem, destino, itemNome, qtd)) {
+                    UiFormatter.printSuccess("Transferência logística de " + qtd + "x '" + itemNome + "' concluída com sucesso!");
+                } else {
+                    UiFormatter.printError("Falha ao realizar transferência. Verifique fundos do destino.");
+                }
+
+            } else if (opt == 2) {
+                List<LojaIndividual> individuais = new ArrayList<>();
+                for (Loja l : lojas) {
+                    if (l instanceof LojaIndividual) {
+                        individuais.add((LojaIndividual) l);
+                    }
+                }
+
+                if (individuais.isEmpty()) {
+                    UiFormatter.printWarning("Nenhuma loja individual cadastrada!");
+                    continue;
+                }
+
+                System.out.println("Escolha a LOJA COMPRADORA (Loja Individual):");
+                for (int i = 0; i < individuais.size(); i++) {
+                    System.out.printf("%d. %s (Caixa: G$ %.2f)\n", i + 1, individuais.get(i).getNome(), individuais.get(i).getCaixa());
+                }
+                int selC = InputUtil.readInt("Comprador: ", 1, individuais.size());
+                LojaIndividual comprador = individuais.get(selC - 1);
+
+                System.out.println("Tipo de busca por fornecedor:");
+                System.out.println("1. Manual (Escolher fornecedor e item)");
+                System.out.println("2. Automático (Procurement - Comprar do mais barato do comércio)");
+                int modo = InputUtil.readInt("Opção: ", 1, 2);
+
+                if (modo == 1) {
+                    System.out.println("Escolha o FORNECEDOR (Qualquer outra loja):");
+                    List<Loja> fornecedores = new ArrayList<>(lojas);
+                    fornecedores.remove(comprador);
+
+                    for (int i = 0; i < fornecedores.size(); i++) {
+                        System.out.printf("%d. %s (Cidade: %s)\n", i + 1, fornecedores.get(i).getNome(), fornecedores.get(i).getCidade());
+                    }
+                    int selF = InputUtil.readInt("Fornecedor: ", 1, fornecedores.size());
+                    Loja fornecedor = fornecedores.get(selF - 1);
+
+                    if (fornecedor.getEstoque().isEmpty()) {
+                        System.out.println("Fornecedor está com estoque vazio!");
+                        continue;
+                    }
+
+                    List<String> estoqueF = new ArrayList<>(fornecedor.getEstoque().keySet());
+                    System.out.println("Selecione o item para comprar:");
+                    for (int i = 0; i < estoqueF.size(); i++) {
+                        String chave = estoqueF.get(i);
+                        Item item = ItemFactory.obterItemDoCatalogo(chave);
+                        double precoVenda = TradeNetworkManager.obterPrecoVendaLoja(fornecedor, item);
+                        System.out.printf("%d. %s (Qtd: %d) - Preço de Venda: G$ %.2f\n", i + 1, chave, fornecedor.getEstoque().get(chave), precoVenda);
+                    }
+                    int selI = InputUtil.readInt("Item: ", 1, estoqueF.size());
+                    String itemNome = estoqueF.get(selI - 1);
+                    int maxQ = fornecedor.getEstoque().get(itemNome);
+                    int qtd = InputUtil.readInt("Quantidade (máx " + maxQ + "): ", 1, maxQ);
+
+                    if (TradeNetworkManager.comprarDeFornecedor(comprador, fornecedor, itemNome, qtd)) {
+                        UiFormatter.printSuccess("Compra efetuada! Loja Individual reabastecida.");
+                    } else {
+                        UiFormatter.printError("Falha na compra. Verifique caixa da loja compradora.");
+                    }
+                } else {
+                    String itemNome = InputUtil.readStringNotEmpty("Nome do item para procurement automático: ").trim().toLowerCase();
+                    Optional<Loja> melhorFornecedor = TradeNetworkManager.encontrarMelhorFornecedor(itemNome, lojas);
+                    if (melhorFornecedor.isEmpty()) {
+                        System.out.println("Nenhuma loja comercializa o item '" + itemNome + "' no momento!");
+                        continue;
+                    }
+                    Loja fornecedor = melhorFornecedor.get();
+                    if (fornecedor.getId().equals(comprador.getId())) {
+                        System.out.println("O melhor fornecedor é a própria loja compradora!");
+                        continue;
+                    }
+
+                    Item item = ItemFactory.obterItemDoCatalogo(itemNome);
+                    double precoUnit = TradeNetworkManager.obterPrecoVendaLoja(fornecedor, item);
+                    int maxQ = fornecedor.getEstoque().get(itemNome);
+                    System.out.printf("Melhor Fornecedor Encontrado: %s em %s (Preço unitário: G$ %.2f, Disponível: %d)\n", fornecedor.getNome(), fornecedor.getCidade(), precoUnit, maxQ);
+                    
+                    int qtd = InputUtil.readInt("Quantidade para reabastecer: ", 1, maxQ);
+                    if (TradeNetworkManager.comprarDeFornecedor(comprador, fornecedor, itemNome, qtd)) {
+                        UiFormatter.printSuccess("Logística Automática Concluída! Compra realizada de " + fornecedor.getNome());
+                    } else {
+                        UiFormatter.printError("Falha ao comprar. Fundos insuficientes.");
+                    }
+                }
+            }
+        }
+    }
+
+    private void simularMercadoLojas() {
+        UiFormatter.printSubtitle("EXECUTANDO SIMULAÇÃO DE ATUALIZAÇÃO DO MERCADO");
+        System.out.println("Escolha o escopo de atualização:");
+        System.out.println("1. Atualizar TODAS as lojas do mundo");
+        System.out.println("2. Atualizar uma Loja específica");
+        int esc = InputUtil.readInt("Opção: ", 1, 2);
+
+        List<String> report = new ArrayList<>();
+        if (esc == 1) {
+            report = MarketSimulationManager.atualizarLojas();
+        } else {
+            List<Loja> lojas = LojaManager.listarTodasLojas();
+            if (lojas.isEmpty()) {
+                System.out.println("Nenhuma loja cadastrada!");
+                return;
+            }
+            for (int i = 0; i < lojas.size(); i++) {
+                System.out.printf("%d. %s (%s)\n", i + 1, lojas.get(i).getNome(), lojas.get(i).getCidade());
+            }
+            int idx = InputUtil.readInt("Opção: ", 1, lojas.size());
+            Loja l = lojas.get(idx - 1);
+            report = MarketSimulationManager.atualizarLoja(l);
+            LojaManager.salvarLojas();
+        }
+
+        UiFormatter.printSubtitle("RELATÓRIO DE EVENTOS DE SIMULAÇÃO DE MERCADO");
+        if (report.isEmpty()) {
+            System.out.println("Nenhum evento registrado nesta simulação.");
+        } else {
+            for (String log : report) {
+                System.out.println("  • " + log);
+            }
+        }
+        InputUtil.pressEnterToContinue();
+    }
+
+    private void menuGerenciamentoEntidades() {
+        while (true) {
+            UiFormatter.printSubtitle("GERENCIAR CIDADES, REDES E LOJAS (MODO MESTRE)");
+            System.out.println("1. Gerenciar Cidades (Criar, Editar, Excluir, Listar)");
+            System.out.println("2. Criar Nova Rede de Lojas");
+            System.out.println("3. Listar Redes");
+            System.out.println("4. Criar Nova Loja (Sede ou Individual)");
+            System.out.println("5. Listar Lojas Globais");
+            System.out.println("6. Adicionar Item ao Estoque de uma Loja");
+            System.out.println("7. Excluir Loja do Catálogo");
+            System.out.println("0. Voltar");
+
+            int opt = InputUtil.readInt("Opção: ", 0, 7);
+            if (opt == 0) return;
+
+            if (opt == 1) {
+                menuGerenciarCidades();
+
+            } else if (opt == 2) {
+                String id = InputUtil.readStringNotEmpty("ID da Rede (slug): ").toLowerCase();
+                String nome = InputUtil.readStringNotEmpty("Nome da Rede: ");
+                LojaManager.adicionarRede(new RedeLoja(id, nome, new ArrayList<>()));
+                UiFormatter.printSuccess("Rede de Lojas '" + nome + "' criada!");
+
+            } else if (opt == 3) {
+                List<RedeLoja> list = LojaManager.listarTodasRedes();
+                UiFormatter.printSubtitle("REDES REGISTRADAS");
+                for (RedeLoja r : list) {
+                    System.out.printf("- %s [ID: %s] (%d sedes)\n", r.getNomeRede(), r.getId(), r.getSedeIds().size());
+                }
+                InputUtil.pressEnterToContinue();
+
+            } else if (opt == 4) {
+                List<Cidade> cidades = CidadeManager.listarTodas();
+                if (cidades.isEmpty()) {
+                    UiFormatter.printError("Crie uma cidade primeiro!");
+                    continue;
+                }
+
+                String id = InputUtil.readStringNotEmpty("ID da Loja (slug): ").toLowerCase();
+                String nome = InputUtil.readStringNotEmpty("Nome da Loja: ");
+                
+                System.out.println("Selecione a Cidade:");
+                for (int i = 0; i < cidades.size(); i++) {
+                    System.out.printf("%d. %s\n", i + 1, cidades.get(i).getNome());
+                }
+                int selC = InputUtil.readInt("Cidade: ", 1, cidades.size());
+                String cidadeNome = cidades.get(selC - 1).getNome();
+
+                double caixa = InputUtil.readDouble("Capital Inicial (Caixa G$): ");
+
+                System.out.println("Tipo de Estabelecimento:");
+                System.out.println("1. Sede de Rede de Lojas");
+                System.out.println("2. Loja Individual");
+                int t = InputUtil.readInt("Opção: ", 1, 2);
+
+                if (t == 1) {
+                    List<RedeLoja> redes = LojaManager.listarTodasRedes();
+                    if (redes.isEmpty()) {
+                        UiFormatter.printError("Crie uma rede primeiro!");
+                        continue;
+                    }
+                    System.out.println("Selecione a Rede pertencente:");
+                    for (int i = 0; i < redes.size(); i++) {
+                        System.out.printf("%d. %s\n", i + 1, redes.get(i).getNomeRede());
+                    }
+                    int selR = InputUtil.readInt("Rede: ", 1, redes.size());
+                    RedeLoja rede = redes.get(selR - 1);
+
+                    SedeRede sr = new SedeRede(id, nome, cidadeNome, caixa, rede.getId());
+                    LojaManager.adicionarLoja(sr);
+                    
+                    rede.getSedeIds().add(id);
+                    LojaManager.salvarRedes();
+                    UiFormatter.printSuccess("Sede de Rede '" + nome + "' adicionada e vinculada à rede '" + rede.getNomeRede() + "'!");
+                } else {
+                    double margem = InputUtil.readDouble("Margem de Lucro padrão (ex: 0.35 para 35%): ");
+                    String dono = InputUtil.readString("Nome do Dono (opcional): ");
+                    LojaIndividual li = new LojaIndividual(id, nome, cidadeNome, caixa, margem, dono);
+                    LojaManager.adicionarLoja(li);
+                    UiFormatter.printSuccess("Loja Individual '" + nome + "' cadastrada com sucesso!");
+                }
+
+            } else if (opt == 5) {
+                List<Loja> list = LojaManager.listarTodasLojas();
+                UiFormatter.printSubtitle("LOJAS REGISTRADAS NO MUNDO");
+                for (Loja l : list) {
+                    String tipo = (l instanceof SedeRede) ? "Sede" : "Individual";
+                    System.out.printf("- %s [ID: %s] | Cidade: %s | Tipo: %s | Caixa: G$ %.2f | Poder: %d\n", 
+                        l.getNome(), l.getId(), l.getCidade(), tipo, l.getCaixa(), l.getPoder());
+                }
+                InputUtil.pressEnterToContinue();
+
+            } else if (opt == 6) {
+                List<Loja> lojas = LojaManager.listarTodasLojas();
+                if (lojas.isEmpty()) {
+                    System.out.println("Nenhuma loja cadastrada!");
+                    continue;
+                }
+                System.out.println("Selecione a Loja:");
+                for (int i = 0; i < lojas.size(); i++) {
+                    System.out.printf("%d. %s (%s)\n", i + 1, lojas.get(i).getNome(), lojas.get(i).getCidade());
+                }
+                int selL = InputUtil.readInt("Loja: ", 1, lojas.size());
+                Loja loja = lojas.get(selL - 1);
+
+                List<Item> catalogo = ItemFactory.listarCatalogo();
+                if (catalogo.isEmpty()) {
+                    System.out.println("Catálogo global de itens vazio!");
+                    continue;
+                }
+
+                System.out.println("Selecione o Item para adicionar ao estoque da loja:");
+                for (int i = 0; i < catalogo.size(); i++) {
+                    System.out.printf("%d. %s (Poder: %d)\n", i + 1, catalogo.get(i).getNome(), catalogo.get(i).getPoder());
+                }
+                int selI = InputUtil.readInt("Item: ", 1, catalogo.size());
+                Item item = catalogo.get(selI - 1);
+
+                int qtd = InputUtil.readInt("Quantidade para adicionar: ", 1, 100);
+                loja.getEstoque().put(item.getNome().toLowerCase(), loja.getEstoque().getOrDefault(item.getNome().toLowerCase(), 0) + qtd);
+                
+                loja.setPoder(ShopPowerCalculator.calcularPoder(loja));
+                LojaManager.salvarLojas();
+                UiFormatter.printSuccess("Adicionado " + qtd + "x '" + item.getNome() + "' ao estoque de '" + loja.getNome() + "'. Poder atualizado para " + loja.getPoder() + "!");
+
+            } else if (opt == 7) {
+                List<Loja> lojas = LojaManager.listarTodasLojas();
+                if (lojas.isEmpty()) {
+                    System.out.println("Nenhuma loja cadastrada!");
+                    continue;
+                }
+                System.out.println("Selecione a Loja para Excluir:");
+                for (int i = 0; i < lojas.size(); i++) {
+                    System.out.printf("%d. %s [ID: %s]\n", i + 1, lojas.get(i).getNome(), lojas.get(i).getId());
+                }
+                int selL = InputUtil.readInt("Excluir: ", 1, lojas.size());
+                Loja l = lojas.get(selL - 1);
+                
+                if (InputUtil.readBoolean("Deseja realmente remover '" + l.getNome() + "' permanentemente? (s/n): ")) {
+                    LojaManager.removerLoja(l.getId());
+                    UiFormatter.printSuccess("Loja removida com sucesso!");
+                }
+            }
+        }
+    }
+
+    private void menuGerenciarCidades() {
+        while (true) {
+            UiFormatter.printSubtitle("GERENCIAR CIDADES 🗺️");
+            System.out.println("1. Criar Nova Cidade");
+            System.out.println("2. Listar Cidades");
+            System.out.println("3. Editar Cidade");
+            System.out.println("4. Excluir Cidade");
+            System.out.println("0. Voltar");
+
+            int opt = InputUtil.readInt("Opção: ", 0, 4);
+            if (opt == 0) return;
+
+            if (opt == 1) {
+                String nome = InputUtil.readStringNotEmpty("Nome da Cidade: ");
+                if (CidadeManager.obter(nome) != null) {
+                    UiFormatter.printError("Uma cidade com este nome já existe!");
+                    continue;
+                }
+                String regiao = InputUtil.readStringNotEmpty("Região: ");
+                double riqueza = InputUtil.readDouble("Índice de Riqueza (0.5 a 2.0): ");
+                CidadeManager.adicionar(new Cidade(nome, regiao, riqueza));
+                UiFormatter.printSuccess("Cidade '" + nome + "' adicionada!");
+            } else if (opt == 2) {
+                List<Cidade> list = CidadeManager.listarTodas();
+                UiFormatter.printSubtitle("CIDADES REGISTRADAS");
+                if (list.isEmpty()) {
+                    System.out.println("(Nenhuma cidade cadastrada)");
+                } else {
+                    for (Cidade c : list) {
+                        System.out.printf("- %s (Região: %s, Riqueza: %.1f)\n", c.getNome(), c.getRegiao(), c.getIndiceRiqueza());
+                    }
+                }
+                InputUtil.pressEnterToContinue();
+            } else if (opt == 3) {
+                List<Cidade> list = CidadeManager.listarTodas();
+                if (list.isEmpty()) {
+                    System.out.println("Nenhuma cidade cadastrada!");
+                    continue;
+                }
+                System.out.println("Selecione a cidade para editar:");
+                for (int i = 0; i < list.size(); i++) {
+                    System.out.printf("%d. %s\n", i + 1, list.get(i).getNome());
+                }
+                int idx = InputUtil.readInt("Opção: ", 1, list.size());
+                Cidade c = list.get(idx - 1);
+                String antigoNome = c.getNome();
+
+                String novoNome = InputUtil.readString("Novo Nome (em branco para manter '" + c.getNome() + "'): ");
+                if (novoNome != null && !novoNome.trim().isEmpty()) {
+                    c.setNome(novoNome.trim());
+                }
+
+                String novaRegiao = InputUtil.readString("Nova Região (em branco para manter '" + c.getRegiao() + "'): ");
+                if (novaRegiao != null && !novaRegiao.trim().isEmpty()) {
+                    c.setRegiao(novaRegiao.trim());
+                }
+
+                Double novaRiqueza = InputUtil.readOptionalDouble("Novo Índice de Riqueza (em branco para manter " + c.getIndiceRiqueza() + "): ");
+                if (novaRiqueza != null) {
+                    c.setIndiceRiqueza(novaRiqueza);
+                }
+
+                CidadeManager.remover(antigoNome);
+                CidadeManager.adicionar(c);
+                UiFormatter.printSuccess("Cidade atualizada com sucesso!");
+            } else if (opt == 4) {
+                List<Cidade> list = CidadeManager.listarTodas();
+                if (list.isEmpty()) {
+                    System.out.println("Nenhuma cidade cadastrada!");
+                    continue;
+                }
+                System.out.println("Selecione a cidade para excluir:");
+                for (int i = 0; i < list.size(); i++) {
+                    System.out.printf("%d. %s\n", i + 1, list.get(i).getNome());
+                }
+                int idx = InputUtil.readInt("Opção: ", 1, list.size());
+                Cidade c = list.get(idx - 1);
+                if (InputUtil.readBoolean("Deseja realmente remover a cidade '" + c.getNome() + "' permanentemente? (s/n): ")) {
+                    CidadeManager.remover(c.getNome());
+                    UiFormatter.printSuccess("Cidade removida com sucesso!");
+                }
+            }
+        }
+    }
+
+    private void gerenciarPassivasPersonagem(Personagem p) {
+        while (true) {
+            UiFormatter.printSubtitle("PASSIVAS DE " + p.getNome().toUpperCase());
+            List<Passiva> passivas = p.getPassivas();
+            if (passivas.isEmpty()) {
+                System.out.println("(Nenhuma passiva atribuída)");
+            } else {
+                for (int i = 0; i < passivas.size(); i++) {
+                    Passiva pass = passivas.get(i);
+                    System.out.printf("%d. %s [%s] - Condição: %s | Efeito: %s\n", 
+                        i + 1, pass.getNome(), pass.getTipoMagiaOuArma(), pass.getCondicao(), pass.getEfeito());
+                }
+            }
+            
+            System.out.println("\nOpções:");
+            System.out.println("1. Adicionar Passiva do Catálogo");
+            System.out.println("2. Remover Passiva do Personagem");
+            System.out.println("0. Voltar");
+            
+            int escolha = InputUtil.readInt("Opção: ", 0, 2);
+            if (escolha == 0) return;
+            
+            if (escolha == 1) {
+                List<Passiva> catalogo = PassivaFactory.listarCatalogo();
+                if (catalogo.isEmpty()) {
+                    System.out.println("Não existem passivas cadastradas no catálogo!");
+                    InputUtil.pressEnterToContinue();
+                    continue;
+                }
+                
+                System.out.println("\n--- PASSIVAS DISPONÍVEIS NO CATÁLOGO ---");
+                for (int i = 0; i < catalogo.size(); i++) {
+                    System.out.printf("%d. %s [%s] - Condição: %s | Efeito: %s\n", 
+                        i + 1, catalogo.get(i).getNome(), catalogo.get(i).getTipoMagiaOuArma(), 
+                        catalogo.get(i).getCondicao(), catalogo.get(i).getEfeito());
+                }
+                int idx = InputUtil.readInt("Escolha a passiva para adicionar: ", 1, catalogo.size());
+                Passiva selecionada = catalogo.get(idx - 1);
+                
+                boolean jaTem = false;
+                for (Passiva pass : passivas) {
+                    if (pass.getNome().equalsIgnoreCase(selecionada.getNome())) {
+                        jaTem = true;
+                        break;
+                    }
+                }
+                
+                if (jaTem) {
+                    UiFormatter.printWarning("O personagem já possui esta passiva!");
+                } else {
+                    passivas.add(PassivaFactory.clonarPassiva(selecionada));
+                    UiFormatter.printSuccess("Passiva '" + selecionada.getNome() + "' adicionada!");
+                }
+            } else if (escolha == 2) {
+                if (passivas.isEmpty()) {
+                    System.out.println("O personagem não tem passivas para remover.");
+                    continue;
+                }
+                int idx = InputUtil.readInt("Escolha a passiva para remover: ", 1, passivas.size());
+                Passiva removida = passivas.remove(idx - 1);
+                UiFormatter.printSuccess("Passiva '" + removida.getNome() + "' removida!");
+            }
+        }
     }
 }

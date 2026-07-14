@@ -1,18 +1,23 @@
 [ {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Fragmento de Estrela Morta",
   "descricao" : "Pequeno cristal escuro que palpita suavemente",
   "valorComercial" : 300.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 1,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 6,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Pote com 1 alma",
   "descricao" : "Recipiente selado contendo um espírito",
   "valorComercial" : 500.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 1,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 6,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Anel do Abismo",
   "descricao" : "Um anel gélido ao toque que sussurra feitiços",
   "valorComercial" : 600.0,
@@ -23,25 +28,31 @@
     "vida" : -50.0
   },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 70,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Frasco de Sangue",
   "descricao" : "Me lembra os dias sangrentos do massacre com meus pais",
   "valorComercial" : 100.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 1,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 6,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Frasquinho Vazio",
   "descricao" : "Recipiente de vidro sem uso imediato",
   "valorComercial" : 5.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 1,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 6,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Drone de Rastreamento",
   "descricao" : "Pequeno drone autônomo companheiro",
   "valorComercial" : 2000.0,
@@ -55,18 +66,22 @@
     "tipo" : "ATIVA",
     "descricao" : "Revela inimigos ocultos"
   } ],
+  "poder" : 16,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : "Mana",
-  "quantidadeMunicao" : 10,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 10
 }, {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Tubo de gás de Cura",
   "descricao" : "Dispositivo medicinal inalatório para regeneração",
   "valorComercial" : 75.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 2,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 12,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Foice Dupla Verde e Roxa",
   "descricao" : "Arma cortante exótica e letal",
   "valorComercial" : 350.0,
@@ -74,11 +89,13 @@
   "slotCompativel" : "DUAS_MAOS",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 68,
+  "raridade" : "COMUM",
   "dano" : 45.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Celular Futurista",
   "descricao" : "Comunicação de altíssima tecnologia",
   "valorComercial" : 1500.0,
@@ -86,11 +103,13 @@
   "slotCompativel" : "ACESSORIO",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 1,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Manto das Almas Perdidas",
   "descricao" : "Capa tecida com lamentos fantasmagóricos",
   "valorComercial" : 1100.0,
@@ -105,18 +124,22 @@
     "tipo" : "PASSIVA",
     "descricao" : "Chance de ignorar ataques"
   } ],
+  "poder" : 123,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Granada de Fogo Fátuo",
   "descricao" : "Explosivo místico de chamas azuis",
   "valorComercial" : 150.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 3,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 18,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Placa de metal Aleatoria muito pika",
   "descricao" : "Uma placa de metal resistente",
   "valorComercial" : 100.0,
@@ -124,11 +147,13 @@
   "slotCompativel" : "ACESSORIO",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 1,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Cajado muito foda",
   "descricao" : "Um cajado incrivelmente poderoso",
   "valorComercial" : 300.0,
@@ -136,11 +161,13 @@
   "slotCompativel" : "DUAS_MAOS",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 63,
+  "raridade" : "COMUM",
   "dano" : 40.0,
   "tipoMunicao" : "Mana",
-  "quantidadeMunicao" : 15,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 15
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Livro na lingua dos seres das trevas antigos",
   "descricao" : "Um tomo macabro e esquecido",
   "valorComercial" : 250.0,
@@ -148,11 +175,13 @@
   "slotCompativel" : "MAO_SECUNDARIA",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 1,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Marreta Quebra-Mundos",
   "descricao" : "Arma brutal de destruição maciça, muito pesada",
   "valorComercial" : 1200.0,
@@ -167,11 +196,13 @@
     "tipo" : "ATIVA",
     "descricao" : "Dano em área"
   } ],
+  "poder" : 236,
+  "raridade" : "COMUM",
   "dano" : 120.0,
   "tipoMunicao" : "Alma",
-  "quantidadeMunicao" : 5,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 5
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Escudo Torre Ciber-Gótico",
   "descricao" : "Escudo com painéis de neon e metal reforçado",
   "valorComercial" : 950.0,
@@ -186,25 +217,31 @@
     "tipo" : "ATIVA",
     "descricao" : "Absorve dano mágico"
   } ],
+  "poder" : 316,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : "Mana",
-  "quantidadeMunicao" : 15,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 15
 }, {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Papel: Perceber na Ilha dos Gigantes",
   "descricao" : "Pista importante anotada",
   "valorComercial" : 10.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 1,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 6,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Seringa de Adrenalina Obscura",
   "descricao" : "Estimulante que aumenta a capacidade física a um custo",
   "valorComercial" : 120.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 1,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 6,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Luvas de mercúrio",
   "descricao" : "Pesadas e imbuídas de vitalidade bruta",
   "valorComercial" : 400.0,
@@ -216,11 +253,13 @@
     "vida" : 20.0
   },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 33,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "ExoEsqueleto de Tiranitar",
   "descricao" : "Armadura biomecânica pesada",
   "valorComercial" : 1500.0,
@@ -232,11 +271,13 @@
     "vida" : 600.0
   },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 615,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Celular",
   "descricao" : "Dispositivo eletrônico de comunicação",
   "valorComercial" : 500.0,
@@ -244,11 +285,13 @@
   "slotCompativel" : "ACESSORIO",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 1,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Foice Simples",
   "descricao" : "Uma Foice de Arado.",
   "valorComercial" : 10.0,
@@ -256,11 +299,13 @@
   "slotCompativel" : "MAO_PRINCIPAL",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 1,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Foice com corrente longa",
   "descricao" : "Arma de alcance médio",
   "valorComercial" : 200.0,
@@ -268,11 +313,13 @@
   "slotCompativel" : "DUAS_MAOS",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 45,
+  "raridade" : "COMUM",
   "dano" : 30.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Óculos de Visão Térmica",
   "descricao" : "Equipamento tático militar avançado",
   "valorComercial" : 750.0,
@@ -282,11 +329,13 @@
     "percepcao" : 15.0
   },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 15,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Machado Misterioso (???)",
   "descricao" : "Machado sombrio que absorve essência",
   "valorComercial" : 5000.0,
@@ -302,11 +351,13 @@
     "tipo" : "PASSIVA",
     "descricao" : "Se matar inimigo pega status senão perde"
   } ],
+  "poder" : 391,
+  "raridade" : "COMUM",
   "dano" : 250.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Botas Antigravidade",
   "descricao" : "Calçado tecnológico que permite saltos enormes",
   "valorComercial" : 800.0,
@@ -317,11 +368,13 @@
     "agilidade" : 20.0
   },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 35,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Colar do Guess",
   "descricao" : "Colar místico e brilhante",
   "valorComercial" : 300.0,
@@ -329,11 +382,13 @@
   "slotCompativel" : "ACESSORIO_1",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 1,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Lamina de um bicho das trevas",
   "descricao" : "Lâmina extraída de uma criatura abissal",
   "valorComercial" : 150.0,
@@ -341,11 +396,13 @@
   "slotCompativel" : "MAO_PRINCIPAL",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 38,
+  "raridade" : "COMUM",
   "dano" : 25.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Pistola Arcana",
   "descricao" : "Arma de fogo modificada para disparar energia",
   "valorComercial" : 900.0,
@@ -353,11 +410,13 @@
   "slotCompativel" : "MAO_PRINCIPAL",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 56,
+  "raridade" : "COMUM",
   "dano" : 35.0,
   "tipoMunicao" : "Bala Mágica",
-  "quantidadeMunicao" : 1,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 1
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Lança Agulha",
   "descricao" : "Lança de perfuração precisa (19/20)",
   "valorComercial" : 250.0,
@@ -365,11 +424,13 @@
   "slotCompativel" : "DUAS_MAOS",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 33,
+  "raridade" : "COMUM",
   "dano" : 22.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Lâmina de Plasma Corrompida",
   "descricao" : "Espada que emite uma luz negra crepitante",
   "valorComercial" : 850.0,
@@ -381,11 +442,13 @@
     "tipo" : "ATIVA",
     "descricao" : "Causa sangramento profundo"
   } ],
+  "poder" : 94,
+  "raridade" : "COMUM",
   "dano" : 55.0,
   "tipoMunicao" : "Alma",
-  "quantidadeMunicao" : 2,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 2
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "PenDrive de corrupção",
   "descricao" : "Um pendrive com arquivos corrompidos",
   "valorComercial" : 50.0,
@@ -393,11 +456,13 @@
   "slotCompativel" : "ACESSORIO",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 1,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Cabeça do Boss do Santuário de Säývôl",
   "descricao" : "Troféu de um boss sagrado",
   "valorComercial" : 2000.0,
@@ -405,11 +470,13 @@
   "slotCompativel" : "ACESSORIO",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 1,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Capa preta",
   "descricao" : "Uma capa que concede estilo inigualável",
   "valorComercial" : 120.0,
@@ -419,11 +486,13 @@
     "estilo" : 10.0
   },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 10,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Foice",
   "descricao" : "Arma cortante",
   "valorComercial" : 80.0,
@@ -431,11 +500,13 @@
   "slotCompativel" : "DUAS_MAOS",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 27,
+  "raridade" : "COMUM",
   "dano" : 18.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Faixa do Gues",
   "descricao" : "Faixa muito pika que o gues deu",
   "valorComercial" : 400.0,
@@ -447,11 +518,13 @@
     "inteligencia" : 25.0
   },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 80,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Espada Élfica",
   "descricao" : "Lâmina forjada por elfos com brilho suave",
   "valorComercial" : 450.0,
@@ -459,18 +532,22 @@
   "slotCompativel" : "MAO_PRINCIPAL",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 53,
+  "raridade" : "COMUM",
   "dano" : 35.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Caixa de Balas Mágicas",
   "descricao" : "Munição carregada com energia pura",
   "valorComercial" : 50.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 15,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 90,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Sobretudo de Couro Mutante",
   "descricao" : "Casaco resistente feito com pele de aberrações",
   "valorComercial" : 450.0,
@@ -481,18 +558,22 @@
     "furtividade" : 10.0
   },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 160,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 }, {
+  "tipoItem" : "CONSUMIVEL",
   "nome" : "Injetor de Nanobôs Médicos",
   "descricao" : "Dispositivo tecnológico de cura avançada",
   "valorComercial" : 250.0,
   "tipoMoeda" : "G$",
   "quantidadeCargas" : 2,
-  "tipoItem" : "CONSUMIVEL"
+  "poder" : 12,
+  "raridade" : "COMUM"
 }, {
+  "tipoItem" : "EQUIPAMENTO",
   "nome" : "Colar do Sólon",
   "descricao" : "Relíquia antiga e misteriosa",
   "valorComercial" : 350.0,
@@ -500,8 +581,9 @@
   "slotCompativel" : "ACESSORIO_2",
   "modificadoresStatus" : { },
   "habilidadesEmbutidas" : [ ],
+  "poder" : 1,
+  "raridade" : "COMUM",
   "dano" : 0.0,
   "tipoMunicao" : null,
-  "quantidadeMunicao" : 0,
-  "tipoItem" : "EQUIPAMENTO"
+  "quantidadeMunicao" : 0
 } ]

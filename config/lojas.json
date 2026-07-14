@@ -1,0 +1,26 @@
+[ {
+  "tipoLoja" : "SEDE_REDE",
+  "id" : "sede_central",
+  "nome" : "Sede Central de Suprimentos",
+  "cidade" : "Cidade Central",
+  "caixa" : 5000.0,
+  "redeId" : "rede_mercado",
+  "estoque" : {
+    "pocao de vida" : 10,
+    "adaga de ferro" : 5
+  },
+  "poder" : 120
+}, {
+  "tipoLoja" : "INDIVIDUAL",
+  "id" : "ferraria_grom",
+  "nome" : "Ferraria do Grom",
+  "cidade" : "Cidade Central",
+  "caixa" : 1500.0,
+  "margemLucro" : 0.35,
+  "dono" : "Grom, o Ferreiro",
+  "estoque" : {
+    "espada longa" : 2,
+    "escudo de madeira" : 3
+  },
+  "poder" : 50
+} ]

@@ -17,6 +17,8 @@ public abstract class Item {
     protected String descricao;
     protected double valorComercial;
     protected String tipoMoeda; // "G$"
+    protected Integer poder;
+    protected Raridade raridade = Raridade.COMUM;
 
     protected Item() {}
 
@@ -57,5 +59,21 @@ public abstract class Item {
 
     public void setTipoMoeda(String tipoMoeda) {
         this.tipoMoeda = tipoMoeda;
+    }
+
+    public Integer getPoder() {
+        return poder;
+    }
+
+    public void setPoder(Integer poder) {
+        this.poder = poder;
+    }
+
+    public Raridade getRaridade() {
+        return raridade != null ? raridade : Raridade.COMUM;
+    }
+
+    public void setRaridade(Raridade raridade) {
+        this.raridade = raridade != null ? raridade : Raridade.COMUM;
     }
 }

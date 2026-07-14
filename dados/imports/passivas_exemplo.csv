@@ -1,0 +1,6 @@
+# Nome;Descrição;TipoMagiaOuArma;Condição;Efeito
+Fúria Incontrolável;Aumenta a força quando está com raiva;Pyromacia;quando estou com raiva;+10 forca
+Parada Temporal;Para o tempo quando prestes a morrer;Cronomacia;preste a receber um ataque fatal;paro o tempo
+Vanguarda Sagrada;Ganha defesa ao proteger aliados;Armas de curta distância;ao proteger aliado;+15 armadura
+Precisão Extrema;Ganha acerto crítico quando longe do perigo;Armas de longa distância;longe de inimigos;+50% chance de critico
+Necrovida;Ganha vida ao derrotar um inimigo;Necromacia;derrotar um inimigo;+20 vida

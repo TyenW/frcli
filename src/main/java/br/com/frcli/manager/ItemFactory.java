@@ -57,8 +57,25 @@ public class ItemFactory {
         try {
             List<Item> itens = mapper.readValue(CATALOG_FILE, new TypeReference<List<Item>>() {});
             itemCatalog.clear();
+            boolean precisaSalvar = false;
             for (Item item : itens) {
+                if (item.getRaridade() == null) {
+                    item.setRaridade(Raridade.COMUM);
+                    precisaSalvar = true;
+                }
+                if (item.getPoder() == null || item.getPoder() <= 0) {
+                    item.setPoder(ItemPowerCalculator.calcularPoder(item));
+                    precisaSalvar = true;
+                }
+                if (item.getValorComercial() <= 0.0) {
+                    item.setValorComercial(PricingEngine.precoBaseSugerido(item));
+                    precisaSalvar = true;
+                }
                 itemCatalog.put(item.getNome().toLowerCase(), item);
+            }
+            if (precisaSalvar) {
+                System.out.println("[ItemFactory] Migrando campos de poder/raridade/preço nos itens carregados...");
+                salvarCatalogo();
             }
         } catch (IOException e) {
             System.err.println("[ItemFactory] Erro ao carregar itens_db.json: " + e.getMessage());
@@ -82,6 +99,15 @@ public class ItemFactory {
 
     public static void adicionarAoCatalogo(Item item) {
         if (item == null || item.getNome() == null) return;
+        if (item.getRaridade() == null) {
+            item.setRaridade(Raridade.COMUM);
+        }
+        if (item.getPoder() == null || item.getPoder() <= 0) {
+            item.setPoder(ItemPowerCalculator.calcularPoder(item));
+        }
+        if (item.getValorComercial() <= 0.0) {
+            item.setValorComercial(PricingEngine.precoBaseSugerido(item));
+        }
         itemCatalog.put(item.getNome().toLowerCase(), item);
         salvarCatalogo();
     }
